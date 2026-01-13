@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.SceneController">
+   <children>
+      <Button mnemonicParsing="false" text="SELECT" layoutX="60" layoutY="100" prefHeight="70.0" prefWidth="250.0" onAction="#switch_Tabela"/>
+      <Button mnemonicParsing="false" text="INSERT" layoutX="60" layoutY="180" prefHeight="70.0" prefWidth="250.0"/>
+      <Button mnemonicParsing="false" text="Button" layoutX="60" layoutY="260" prefHeight="70.0" prefWidth="250.0"/>
+      <Button mnemonicParsing="false" text="Wyjdź" layoutX="60" layoutY="340" prefHeight="70.0" prefWidth="250.0"/>
+   </children>
+</AnchorPane>

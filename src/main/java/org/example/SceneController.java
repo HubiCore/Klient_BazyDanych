@@ -1,0 +1,28 @@
+package org.example;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import java.io.IOException;
+
+public class SceneController {
+
+    public void switch_Tabela(ActionEvent event) throws IOException {
+        System.out.println("Przechodzenie do tabel");
+        Parent root = FXMLLoader.load(getClass().getResource("/Tabela_Wyswietlanie.fxml"));
+        Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+
+        try {
+            scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+        } catch (Exception e) {
+            System.out.println("Nie znaleziono pliku CSS: " + e.getMessage());
+        }
+
+        stage.setScene(scene);
+        stage.show();
+    }
+}
