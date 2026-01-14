@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.SceneController">
+    <children>
+        <ChoiceBox fx:id="tableChoiceBox" layoutX="125.0" layoutY="74.0" prefWidth="150.0">
+        <items>
+            <FXCollections fx:factory="observableArrayList">
+                <String fx:value="Pracownicy" />
+                <String fx:value="Bilet" />
+                <String fx:value="Klienci" />
+                <String fx:value="Wybiegi" />
+                <String fx:value="Klatki" />
+                <String fx:value="Karmienia" />
+            </FXCollections>
+        </items>
+        </ChoiceBox>
+        <ChoiceBox fx:id="Wybierz_kolumne" layoutX="125.0" layoutY="189.0" prefWidth="150.0">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Tutaj" />
+                    <String fx:value="Coś" />
+                    <String fx:value="Będzie" />
+                </FXCollections>
+            </items>
+        </ChoiceBox>
+
+      <TextField layoutX="113.0" layoutY="295.0" />
+      <TextField layoutX="409.0" layoutY="189.0" />
+      <Text layoutX="125.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tabela" />
+      <Text layoutX="125.0" layoutY="161.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kolumna" />
+      <Text layoutX="112.0" layoutY="274.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warunek" />
+      <Text layoutX="409.0" layoutY="161.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wartość" />
+    </children>
+</AnchorPane>

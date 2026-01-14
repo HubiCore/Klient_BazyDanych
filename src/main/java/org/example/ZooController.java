@@ -5,12 +5,10 @@ import java.sql.*;
 public class ZooController {
     private Connection connection;
 
-    // Dodaj konstruktor inicjalizujący połączenie
     public ZooController() {
         this.connection = DatabaseConnection.getConnection();
     }
 
-    // Pomocnicza metoda do sprawdzania i odtwarzania połączenia
     private Connection ensureConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             connection = DatabaseConnection.getConnection();
@@ -18,7 +16,6 @@ public class ZooController {
         return connection;
     }
 
-    // Metody dla tabeli Pracownicy
     public ResultSet getPracownicy(String dane) throws SQLException {
         String query = "SELECT " + dane + " FROM Pracownicy";
         Statement stmt = ensureConnection().createStatement();
@@ -52,35 +49,30 @@ public class ZooController {
         }
     }
 
-    // Metody dla tabeli Bilet
     public ResultSet getBilety(String dane) throws SQLException {
         String query = "SELECT " + dane + " FROM Bilet";
         Statement stmt = ensureConnection().createStatement();
         return stmt.executeQuery(query);
     }
 
-    // Metody dla tabeli Klienci
     public ResultSet getKlienci(String dane) throws SQLException {
         String query = "SELECT " + dane + " FROM Klienci";
         Statement stmt = ensureConnection().createStatement();
         return stmt.executeQuery(query);
     }
 
-    // Metody dla tabeli Wybiegi
     public ResultSet getWybiegi(String dane) throws SQLException {
         String query = "SELECT " + dane + " FROM Wybiegi";
         Statement stmt = ensureConnection().createStatement();
         return stmt.executeQuery(query);
     }
 
-    // Metody dla tabeli Klatki
     public ResultSet getKlatki(String dane) throws SQLException {
         String query = "SELECT " + dane + " FROM Klatki";
         Statement stmt = ensureConnection().createStatement();
         return stmt.executeQuery(query);
     }
 
-    // Metody dla tabeli Karmienia
     public ResultSet getKarmienia(String dane) throws SQLException {
         String query = "SELECT " + dane + " FROM Karmienia";
         Statement stmt = ensureConnection().createStatement();

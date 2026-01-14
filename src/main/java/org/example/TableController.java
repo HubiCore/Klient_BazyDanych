@@ -28,9 +28,7 @@ public class TableController {
         try {
             zooController = new ZooController();
 
-            tableChoiceBox.getItems().addAll(
-                    "Pracownicy", "Bilet", "Klienci", "Wybiegi", "Klatki", "Karmienia"
-            );
+            tableChoiceBox.getItems().addAll("Pracownicy", "Bilet", "Klienci", "Wybiegi", "Klatki", "Karmienia");
             tableChoiceBox.setValue("Pracownicy");
 
             tableChoiceBox.setOnAction(event -> {
@@ -38,11 +36,10 @@ public class TableController {
                 displayTableData(selectedTable);
             });
 
-            // Wyświetlenie danych domyślnej tabeli
             displayTableData("Pracownicy");
 
         } catch (Exception e) {
-            showError("Błąd inicjalizacji", "Nie można zainicjalizować kontrolera: " + e.getMessage());
+            System.out.println("Błąd inicjalizacji Nie można zainicjalizować kontrolera:\n" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -77,16 +74,9 @@ public class TableController {
             }
 
         } catch (Exception e) {
-            showError("Błąd bazy danych", "Nie można załadować danych z tabeli " + tableName + ": " + e.getMessage());
+            System.out.println("Błąd bazy danych Nie można załadować danych z tabeli " + tableName + ":\n" + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void showError(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
 }
