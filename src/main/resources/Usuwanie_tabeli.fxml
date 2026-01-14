@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.DropController">
+   <children>
+      <Button layoutX="498.0" layoutY="146.0" mnemonicParsing="false" text="Usuń CAŁĄ tabele" onAction="#drop_table"/>
+       <ChoiceBox fx:id="tableChoiceBox" layoutX="290.0" layoutY="146.0" prefWidth="150.0">
+           <items>
+               <FXCollections fx:factory="observableArrayList">
+                   <String fx:value="Pracownicy" />
+                   <String fx:value="Bilet" />
+                   <String fx:value="Klienci" />
+                   <String fx:value="Wybiegi" />
+                   <String fx:value="Klatki" />
+                   <String fx:value="Karmienia" />
+               </FXCollections>
+           </items>
+       </ChoiceBox>
+   </children>
+</AnchorPane>

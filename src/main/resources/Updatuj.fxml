@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.SceneController">
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.UpdateController">
     <children>
         <ChoiceBox fx:id="tableChoiceBox" layoutX="125.0" layoutY="74.0" prefWidth="150.0">
         <items>
@@ -30,11 +30,14 @@
             </items>
         </ChoiceBox>
 
-      <TextField layoutX="113.0" layoutY="295.0" />
-      <TextField layoutX="409.0" layoutY="189.0" />
+      <TextField id="Warunek" layoutX="125.0" layoutY="294.0" />
+      <TextField id="Wartosc" layoutX="649.0" layoutY="189.0" />
       <Text layoutX="125.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tabela" />
       <Text layoutX="125.0" layoutY="161.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kolumna" />
-      <Text layoutX="112.0" layoutY="274.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warunek" />
-      <Text layoutX="409.0" layoutY="161.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wartość" />
+      <Text layoutX="124.0" layoutY="273.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warunek (ID)" />
+      <Text layoutX="649.0" layoutY="161.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wartość" />
+      <Button layoutX="345.0" layoutY="189.0" mnemonicParsing="false" text="Odśwież warunek" />
+      <CheckBox layoutX="24.0" layoutY="193.0" mnemonicParsing="false" text="Warunek" />
+      <Button id="czy_warunek" layoutX="649.0" layoutY="246.0" mnemonicParsing="false" text="Potwierdź" />
     </children>
 </AnchorPane>

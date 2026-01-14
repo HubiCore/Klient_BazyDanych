@@ -1,6 +1,11 @@
 package org.example;
 
+import javafx.scene.control.ChoiceBox;
+
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ZooController {
     private Connection connection;
@@ -15,7 +20,39 @@ public class ZooController {
         }
         return connection;
     }
+    public void update_table(String table, String nazwa, String dane) throws SQLException {
+        String query = "UPDATE "+table+" SET " + nazwa + " = " +dane;
+        Statement statement = ensureConnection().createStatement();
+        statement.execute(query);
+    }
 
+    public void update_table_where(String table, String nazwa, String dane, String where) throws SQLException {
+        String query = "UPDATE "+table+" SET " + nazwa + " = " +dane;
+        Statement statement = ensureConnection().createStatement();
+        statement.execute(query);
+    }
+
+    public void Drop_Table (String table) throws SQLException {
+        String query = "DROP TABLE "+ table + " CASCADE CONSTRAINTS";
+        Statement statement = ensureConnection().createStatement();
+        statement.execute(query);
+    }
+    public ChoiceBox<String> get_column_names(String table_name) throws SQLException {
+        String query = "SELECT * FROM " + table_name + " WHERE 1=0";
+        Statement stmt = ensureConnection().createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        ChoiceBox<String> choiceBox = new ChoiceBox<>();
+        ResultSetMetaData metaData = rs.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        List<String> columnNames = new ArrayList<>();
+        for (int i = 1; i <= columnCount; i++) {
+            String columnName = metaData.getColumnName(i);
+            columnNames.add(columnName);
+        }
+        choiceBox.getItems().clear();
+        choiceBox.getItems().addAll(columnNames);
+        return choiceBox;
+    }
     public ResultSet getPracownicy(String dane) throws SQLException {
         String query = "SELECT " + dane + " FROM Pracownicy";
         Statement stmt = ensureConnection().createStatement();
@@ -48,7 +85,10 @@ public class ZooController {
             pstmt.executeUpdate();
         }
     }
+    public void create_tab(String[] dane){
 
+
+    }
     public ResultSet getBilety(String dane) throws SQLException {
         String query = "SELECT " + dane + " FROM Bilet";
         Statement stmt = ensureConnection().createStatement();
