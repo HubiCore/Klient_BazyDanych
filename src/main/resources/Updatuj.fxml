@@ -29,15 +29,27 @@
                 </FXCollections>
             </items>
         </ChoiceBox>
-
-      <TextField id="Warunek" layoutX="125.0" layoutY="294.0" />
-      <TextField id="Wartosc" layoutX="649.0" layoutY="189.0" />
-      <Text layoutX="125.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tabela" />
-      <Text layoutX="125.0" layoutY="161.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kolumna" />
-      <Text layoutX="124.0" layoutY="273.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warunek (ID)" />
-      <Text layoutX="649.0" layoutY="161.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wartość" />
-      <Button layoutX="345.0" layoutY="189.0" mnemonicParsing="false" text="Odśwież warunek" />
-      <CheckBox layoutX="24.0" layoutY="193.0" mnemonicParsing="false" text="Warunek" />
-      <Button id="czy_warunek" layoutX="649.0" layoutY="246.0" mnemonicParsing="false" text="Potwierdź" />
+        <TextField id="Wartosc" layoutX="649.0" layoutY="189.0" />
+        <Text layoutX="125.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tabela" />
+        <Text layoutX="125.0" layoutY="161.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kolumna" />
+        <Text layoutX="649.0" layoutY="161.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wartość" />
+        <Button layoutX="345.0" layoutY="189.0" mnemonicParsing="false" onAction="#update_wybierz_kolumne" text="Odśwież warunek" />
+        <Button layoutX="649.0" layoutY="246.0" mnemonicParsing="false" onAction="#modify_table" text="Potwierdź" />
+        <CheckBox id="czy_warunek" layoutX="235.0" layoutY="262.0" mnemonicParsing="false" text="Warunek" />
+        <ChoiceBox id="kolumny" layoutX="30.0" layoutY="344.0" prefWidth="150.0" />
+        <ChoiceBox id="porównanie" layoutX="200.0" layoutY="344.0" prefWidth="150.0">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="większe od" />
+                    <String fx:value="mniejsze od" />
+                    <String fx:value="równe" />
+                    <String fx:value="różne" />
+                </FXCollections>
+            </items>
+        </ChoiceBox>
+        <TextField layoutX="381.0" layoutY="344.0" />
+        <Text layoutX="92.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kolumna" />
+        <Text layoutX="262.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Symbol" />
+        <Text layoutX="449.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wartość" />
     </children>
 </AnchorPane>

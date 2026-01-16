@@ -7,52 +7,57 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 
 import java.sql.SQLException;
-import java.util.List;
 
-public class UpdateController {
+public class DeleteController {
     private ZooController zooController;
 
     @FXML
     private ChoiceBox<String> tableChoiceBox;
-    @FXML
-    private ChoiceBox<String> Wybierz_kolumne;
-    @FXML
-    private TextField Wartosc;
-    @FXML
-    private CheckBox czy_warunek;
-    @FXML
-    private Button odswiezButton;
+
     @FXML
     private ChoiceBox<String> kolumnyChoiceBox;
+
     @FXML
     private ChoiceBox<String> porownanieChoiceBox;
+
     @FXML
     private TextField warunekWartoscTextField;
+
+    @FXML
+    private CheckBox czyWarunekCheckBox;
+
+    @FXML
+    private Button odswiezKolumnyButton;
+
+    @FXML
+    private Button deleteButton;
+
     @FXML
     public void initialize() {
         try {
             zooController = new ZooController();
             tableChoiceBox.getItems().addAll("Pracownicy", "Bilet", "Klienci", "Wybiegi", "Klatki", "Karmienia");
             tableChoiceBox.setValue("Pracownicy");
+            porownanieChoiceBox.getItems().addAll("większe od", "mniejsze od", "równe", "różne");
+            porownanieChoiceBox.setValue("równe");
+
+
         } catch (Exception e) {
-            System.out.println("Błąd inicjalizacji Nie można zainicjalizować kontrolera:\n" + e.getMessage());
+            System.out.println("Błąd inicjalizacji: Nie można zainicjalizować kontrolera:\n" + e.getMessage());
             e.printStackTrace();
         }
     }
-    public void update_wybierz_kolumne() {
+
+    @FXML
+    public void delete_wybierz_kolumnyS() {
         try {
             String selectedTable = tableChoiceBox.getValue();
             if (selectedTable != null && !selectedTable.isEmpty()) {
                 ChoiceBox<String> columnChoiceBox = zooController.get_column_names(selectedTable);
-                Wybierz_kolumne.getItems().clear();
-                Wybierz_kolumne.getItems().addAll(columnChoiceBox.getItems());
-
-                // Inicjalizacja również kolumny dla warunku
                 kolumnyChoiceBox.getItems().clear();
                 kolumnyChoiceBox.getItems().addAll(columnChoiceBox.getItems());
 
                 if (!columnChoiceBox.getItems().isEmpty()) {
-                    Wybierz_kolumne.setValue(columnChoiceBox.getItems().get(0));
                     kolumnyChoiceBox.setValue(columnChoiceBox.getItems().get(0));
                 }
             }
@@ -62,17 +67,29 @@ public class UpdateController {
         }
     }
 
-    public void modify_table() {
+    @FXML
+    public void deleteTable() {
         String selectedTable = tableChoiceBox.getValue();
-        String selectedColumn = Wybierz_kolumne.getValue();
-        String wartoscValue = Wartosc.getText();
-        boolean czyWarunek = czy_warunek.isSelected();
+        boolean czyWarunek = czyWarunekCheckBox.isSelected();
 
-        if (czyWarunek) {
-            try {
+        if (selectedTable == null || selectedTable.isEmpty()) {
+            System.out.println("Proszę wybrać tabelę!");
+            return;
+        }
+
+        try {
+            if (czyWarunek) {
                 String warunekKolumna = kolumnyChoiceBox.getValue();
                 String operator = porownanieChoiceBox.getValue();
                 String warunekWartosc = warunekWartoscTextField.getText();
+
+                if (warunekKolumna == null || warunekKolumna.isEmpty() ||
+                        operator == null || operator.isEmpty() ||
+                        warunekWartosc == null || warunekWartosc.trim().isEmpty()) {
+                    System.out.println("Proszę wypełnić wszystkie pola warunku!");
+                    return;
+                }
+
                 String sqlOperator = "";
                 switch (operator) {
                     case "większe od":
@@ -90,6 +107,7 @@ public class UpdateController {
                     default:
                         sqlOperator = "=";
                 }
+
                 String warunek = warunekKolumna + " " + sqlOperator + " ";
                 if (isNumeric(warunekWartosc)) {
                     warunek += warunekWartosc;
@@ -97,20 +115,20 @@ public class UpdateController {
                     warunek += "'" + warunekWartosc + "'";
                 }
 
-                zooController.update_table_where(selectedTable, selectedColumn, wartoscValue, warunek);
-            } catch (Exception e) {
-                System.out.println("Błąd przy aktualizacji z warunkiem: " + e.getMessage());
-                e.printStackTrace();
+                zooController.delete_table_where(selectedTable, warunek);
+                System.out.println("Usunięto rekordy z tabeli " + selectedTable + " z warunkiem: " + warunek);
+
+            } else {
+                zooController.delete_table(selectedTable);
+                System.out.println("Usunięto wszystkie rekordy z tabeli " + selectedTable);
             }
-        } else {
-            try {
-                zooController.update_table(selectedTable, selectedColumn, wartoscValue);
-            } catch (Exception e) {
-                System.out.println("Błąd przy aktualizacji: " + e.getMessage());
-                e.printStackTrace();
-            }
+
+        } catch (Exception e) {
+            System.out.println("Błąd podczas usuwania: " + e.getMessage());
+            e.printStackTrace();
         }
     }
+
     private boolean isNumeric(String str) {
         try {
             Double.parseDouble(str);
