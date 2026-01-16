@@ -36,11 +36,22 @@ public class DeleteController {
     public void initialize() {
         try {
             zooController = new ZooController();
+
+            // Inicjalizacja tabel
             tableChoiceBox.getItems().addAll("Pracownicy", "Bilet", "Klienci", "Wybiegi", "Klatki", "Karmienia");
             tableChoiceBox.setValue("Pracownicy");
-            porownanieChoiceBox.getItems().addAll("większe od", "mniejsze od", "równe", "różne");
-            porownanieChoiceBox.setValue("równe");
 
+            // Sprawdź czy porownanieChoiceBox nie jest null przed użyciem
+            if (porownanieChoiceBox != null) {
+                // Inicjalizacja operatorów porównania
+                porownanieChoiceBox.getItems().addAll("większe od", "mniejsze od", "równe", "różne");
+                porownanieChoiceBox.setValue("równe");
+            } else {
+                System.out.println("Warning: porownanieChoiceBox is null");
+            }
+
+            // Odśwież kolumny przy starcie
+            odswiezKolumny();
 
         } catch (Exception e) {
             System.out.println("Błąd inicjalizacji: Nie można zainicjalizować kontrolera:\n" + e.getMessage());
@@ -49,7 +60,7 @@ public class DeleteController {
     }
 
     @FXML
-    public void delete_wybierz_kolumnyS() {
+    public void odswiezKolumny() {
         try {
             String selectedTable = tableChoiceBox.getValue();
             if (selectedTable != null && !selectedTable.isEmpty()) {
@@ -70,6 +81,10 @@ public class DeleteController {
     @FXML
     public void deleteTable() {
         String selectedTable = tableChoiceBox.getValue();
+        if (czyWarunekCheckBox == null) {
+            System.out.println("Error: czyWarunekCheckBox is null!");
+            return;
+        }
         boolean czyWarunek = czyWarunekCheckBox.isSelected();
 
         if (selectedTable == null || selectedTable.isEmpty()) {
@@ -79,6 +94,11 @@ public class DeleteController {
 
         try {
             if (czyWarunek) {
+                if (kolumnyChoiceBox == null || porownanieChoiceBox == null || warunekWartoscTextField == null) {
+                    System.out.println("Error: Some condition controls are null!");
+                    return;
+                }
+
                 String warunekKolumna = kolumnyChoiceBox.getValue();
                 String operator = porownanieChoiceBox.getValue();
                 String warunekWartosc = warunekWartoscTextField.getText();

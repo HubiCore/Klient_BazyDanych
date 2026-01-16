@@ -21,16 +21,16 @@
             </items>
         </ChoiceBox>
         <Text layoutX="125.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tabela" />
-        <CheckBox id="czy_warunek" layoutX="235.0" layoutY="262.0" mnemonicParsing="false" text="Warunek" />
-        <Button id="deleteButton" layoutX="602.0" layoutY="189.0" mnemonicParsing="false" onAction="#delete_table" text="Potwierdź" />
-        <ChoiceBox id="kolumnyChoiceBox" layoutX="30.0" layoutY="344.0" prefWidth="150.0" />
-        <ChoiceBox id="porownanieChoiceBox" layoutX="200.0" layoutY="344.0" prefWidth="150.0">
+        <CheckBox fx:id="czyWarunekCheckBox" layoutX="235.0" layoutY="262.0" mnemonicParsing="false" text="Warunek" />
+        <Button fx:id="deleteButton" layoutX="602.0" layoutY="189.0" mnemonicParsing="false" onAction="#deleteTable" text="Potwierdź" />
+        <ChoiceBox fx:id="kolumnyChoiceBox" layoutX="30.0" layoutY="344.0" prefWidth="150.0" />
+        <ChoiceBox fx:id="porownanieChoiceBox" layoutX="200.0" layoutY="344.0" prefWidth="150.0">
             <items>
                 <FXCollections fx:factory="observableArrayList">
-                    <String value="większe od" />
-                    <String value="mniejsze od" />
-                    <String value="równe" />
-                    <String value="różne" />
+                    <String fx:value="większe od" />
+                    <String fx:value="mniejsze od" />
+                    <String fx:value="równe" />
+                    <String fx:value="różne" />
                 </FXCollections>
             </items>
         </ChoiceBox>
@@ -38,6 +38,6 @@
         <Text layoutX="92.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kolumna" />
         <Text layoutX="262.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Symbol" />
         <Text layoutX="449.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wartość" />
-        <Button layoutX="345.0" layoutY="189.0" mnemonicParsing="false" onAction="#delete_wybierz_kolumne" text="Odśwież kolumny" />
+        <Button fx:id="odswiezKolumnyButton" layoutX="345.0" layoutY="189.0" mnemonicParsing="false" onAction="#odswiezKolumny" text="Odśwież kolumny" />
     </children>
 </AnchorPane>

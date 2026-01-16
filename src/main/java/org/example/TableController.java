@@ -50,7 +50,7 @@ public class TableController {
 
             switch (tableName) {
                 case "Pracownicy":
-                    resultSet = zooController.getPracownicy("*");
+                    //resultSet = zooController.getPracownicy("*");
                     break;
                 case "Bilet":
                     resultSet = zooController.getBilety("*");
