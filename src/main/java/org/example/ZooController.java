@@ -37,6 +37,31 @@ public class ZooController {
         Statement statement = ensureConnection().createStatement();
         statement.execute(query);
     }
+
+    public ResultSet Select_Table(String dane, String table) throws SQLException {
+        String query = "SELECT " + dane + " FROM " + table;
+        Statement stmt = ensureConnection().createStatement();
+        return stmt.executeQuery(query);
+    }
+
+    public ResultSet Select_Table_where(String dane, String table, String where) throws SQLException {
+        String query = "SELECT " + dane + " FROM " + table + " WHERE " + where;
+        Statement stmt = ensureConnection().createStatement();
+        return stmt.executeQuery(query);
+    }
+
+    public ResultSet Select_Table_order(String dane, String table, String order) throws SQLException {
+        String query = "SELECT " + dane + " FROM " + table + " ORDER BY  " + order;
+        Statement stmt = ensureConnection().createStatement();
+        return stmt.executeQuery(query);
+    }
+
+    public ResultSet Select_Table_where_order(String dane, String table,String where, String order) throws SQLException {
+        String query = "SELECT " + dane + " FROM " + table +" WHERE " + where + " ORDER BY  " + order;
+        Statement stmt = ensureConnection().createStatement();
+        return stmt.executeQuery(query);
+    }
+
     public ChoiceBox<String> get_column_names(String table_name) throws SQLException {
         String query = "SELECT * FROM " + table_name + " WHERE 1=0";
         Statement stmt = ensureConnection().createStatement();
@@ -53,28 +78,25 @@ public class ZooController {
         choiceBox.getItems().addAll(columnNames);
         return choiceBox;
     }
-    public ResultSet getPracownicy(String dane) throws SQLException {
-        String query = "SELECT " + dane + " FROM Pracownicy";
-        Statement stmt = ensureConnection().createStatement();
-        return stmt.executeQuery(query);
-    }
-
-    public ResultSet getPracownicyWhere(String dane, String warunek) throws SQLException {
-        String query = "SELECT " + dane + " FROM Pracownicy WHERE " + warunek;
-        Statement stmt = ensureConnection().createStatement();
-        return stmt.executeQuery(query);
-    }
-
-    public ResultSet getPracownicyOrderBy(String dane, String kolejcosc) throws SQLException {
-        String query = "SELECT " + dane + " FROM Pracownicy ORDER BY " + kolejcosc;
-        Statement stmt = ensureConnection().createStatement();
-        return stmt.executeQuery(query);
-    }
 
     public void insertPracownik(int id, String imie, String nazwisko, int wiek,
                                 double pensja, String miejscePracy) throws SQLException {
         String query = "INSERT INTO Pracownicy (Pracownik_ID, Imie, Nazwisko, Wiek, Pensja, Miejsce_Pracy) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement pstmt = ensureConnection().prepareStatement(query)) {
+            pstmt.setInt(1, id);
+            pstmt.setString(2, imie);
+            pstmt.setString(3, nazwisko);
+            pstmt.setInt(4, wiek);
+            pstmt.setDouble(5, pensja);
+            pstmt.setString(6, miejscePracy);
+            pstmt.executeUpdate();
+        }
+    }
+
+    public void Insert(String table, int id, String imie, String nazwisko, int wiek,
+                                double pensja, String miejscePracy) throws SQLException {
+        String query = "INSERT INTO " + table + "VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = ensureConnection().prepareStatement(query)) {
             pstmt.setInt(1, id);
             pstmt.setString(2, imie);
