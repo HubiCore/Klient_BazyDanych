@@ -24,7 +24,7 @@
 
         <TableView fx:id="dataTableView" layoutX="100.0" layoutY="150.0" prefHeight="800.0" prefWidth="1720.0">
         </TableView>
-      <CheckBox layoutX="504.0" layoutY="78.0" mnemonicParsing="false" text="Warunek ?" />
+      <CheckBox id="czy_warunek" layoutX="504.0" layoutY="78.0" mnemonicParsing="false" text="Warunek ?" />
       <TextField layoutX="938.0" layoutY="74.0" prefHeight="26.0" prefWidth="95.0" />
       <ChoiceBox layoutX="651.0" layoutY="74.0" prefWidth="150.0" />
       <ChoiceBox layoutX="837.0" layoutY="74.0" prefHeight="26.0" prefWidth="70.0">

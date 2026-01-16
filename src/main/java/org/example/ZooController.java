@@ -20,16 +20,61 @@ public class ZooController {
         }
         return connection;
     }
+    public void create_table(String table, String[] kolumny, String[] typy_danych) throws SQLException {
+
+    }
+    public void delete_table(String table) throws SQLException {
+        String query = "DELETE FROM " + table;
+        try (Statement statement = ensureConnection().createStatement()) {
+            statement.execute(query);
+        }
+    }
+
+    public void delete_table_where(String table, String where) throws SQLException {
+        String query = "DELETE FROM " + table + " WHERE " + where;
+        try (Statement statement = ensureConnection().createStatement()) {
+            statement.execute(query);
+        }
+    }
     public void update_table(String table, String nazwa, String dane) throws SQLException {
-        String query = "UPDATE "+table+" SET " + nazwa + " = " +dane;
-        Statement statement = ensureConnection().createStatement();
-        statement.execute(query);
+        String query = "UPDATE " + table + " SET " + nazwa + " = ?";
+        try (PreparedStatement pstmt = ensureConnection().prepareStatement(query)) {
+            if (isNumeric(dane)) {
+                if (dane.contains(".")) {
+                    pstmt.setDouble(1, Double.parseDouble(dane));
+                } else {
+                    pstmt.setInt(1, Integer.parseInt(dane));
+                }
+            } else {
+                pstmt.setString(1, dane);
+            }
+            pstmt.executeUpdate();
+        }
     }
 
     public void update_table_where(String table, String nazwa, String dane, String where) throws SQLException {
-        String query = "UPDATE "+table+" SET " + nazwa + " = " +dane;
-        Statement statement = ensureConnection().createStatement();
-        statement.execute(query);
+        String query = "UPDATE " + table + " SET " + nazwa + " = ? WHERE " + where;
+        try (PreparedStatement pstmt = ensureConnection().prepareStatement(query)) {
+            if (isNumeric(dane)) {
+                if (dane.contains(".")) {
+                    pstmt.setDouble(1, Double.parseDouble(dane));
+                } else {
+                    pstmt.setInt(1, Integer.parseInt(dane));
+                }
+            } else {
+                pstmt.setString(1, dane);
+            }
+            pstmt.executeUpdate();
+        }
+    }
+
+    private boolean isNumeric(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     public void Drop_Table (String table) throws SQLException {
