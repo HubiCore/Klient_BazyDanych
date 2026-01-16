@@ -31,7 +31,7 @@ public class ZooService {
             e.printStackTrace();
         }
     }
-
+    /*
     public void displayPracownicy() {
         try {
             ResultSet rs = zooController.getPracownicy("*");
@@ -56,5 +56,7 @@ public class ZooService {
             e.printStackTrace();
         }
     }
+
+     */
 
 }
