@@ -1,5 +1,7 @@
 package org.example;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.ChoiceBox;
 
 import java.sql.*;
@@ -21,14 +23,25 @@ public class ZooController {
         return connection;
     }
     public void addColumn(String tableName, String columnName, String dataType) throws SQLException {
-        String query = "ALTER TABLE " + tableName + " ADD " + columnName + " " + dataType;
+        String query = "ALTER TABLE " + tableName + " ADD (" + columnName + " " + dataType + ")";
+        System.out.println("SQL: " + query); // Debug
         try (Statement stmt = ensureConnection().createStatement()) {
             stmt.execute(query);
         }
     }
+    public void addColumnWithDefault(String tableName, String columnName, String dataType, String defaultValue) throws SQLException {
+        // Sprawdź, czy wartość domyślna wymaga apostrofów
+        String formattedDefault = formatDefaultValue(defaultValue);
 
+        String query = "ALTER TABLE " + tableName + " ADD (" + columnName + " " + dataType + " DEFAULT " + formattedDefault + ")";
+        System.out.println("SQL: " + query); // Debug
+        try (Statement stmt = ensureConnection().createStatement()) {
+            stmt.execute(query);
+        }
+    }
     public void dropColumn(String tableName, String columnName) throws SQLException {
         String query = "ALTER TABLE " + tableName + " DROP COLUMN " + columnName;
+        System.out.println("SQL: " + query);
         try (Statement stmt = ensureConnection().createStatement()) {
             stmt.execute(query);
         }
@@ -275,6 +288,25 @@ public class ZooController {
         choiceBox.getItems().addAll(columnNames);
         return choiceBox;
     }
+
+    public ChoiceBox<String> get_table_names() throws SQLException {
+        ChoiceBox<String> choiceBox = new ChoiceBox<>();
+        String query = "SELECT table_name FROM user_tables " + "WHERE table_name NOT LIKE 'LOGMNR%' " + "AND table_name NOT LIKE 'LOGSTDBY$%' " + "AND table_name NOT LIKE 'ROLLING$%' " + "AND table_name NOT LIKE 'REPL_%' " + "AND table_name NOT LIKE 'OL$%' " + "AND table_name <> 'SQLPLUS_PRODUCT_PROFILE' " + "ORDER BY table_name";
+        //Te wszystkie NOT LIKE żeby śmieci się nie pokazywały
+        Statement stmt = ensureConnection().createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        ObservableList<String> tableNames = FXCollections.observableArrayList();
+        while (rs.next()) {
+            tableNames.add(rs.getString("table_name"));
+        }
+        choiceBox.setItems(tableNames);
+        if (!tableNames.isEmpty()) {
+            choiceBox.setValue(tableNames.get(0));
+        }
+        rs.close();
+        stmt.close();
+        return choiceBox;
+    }
     public List<String> getConstraintNames(String tableName) throws SQLException {
         List<String> constraints = new ArrayList<>();
         String query = "SELECT constraint_name FROM user_constraints WHERE table_name = ?";
@@ -317,11 +349,35 @@ public class ZooController {
             pstmt.executeUpdate();
         }
     }
-    public void create_tab(String[] dane){
 
+    private String formatDefaultValue(String defaultValue) {
+        if (defaultValue == null || defaultValue.trim().isEmpty()) {
+            return "NULL";
+        }
 
+        String trimmed = defaultValue.trim();
+
+        // Sprawdź czy to już jest w apostrofach
+        if (trimmed.startsWith("'") && trimmed.endsWith("'")) {
+            return trimmed;
+        }
+
+        // Sprawdź czy to liczba
+        try {
+            Double.parseDouble(trimmed);
+            return trimmed; // Liczby nie potrzebują apostrofów
+        } catch (NumberFormatException e) {
+            // Sprawdź czy to funkcja SQL
+            if (trimmed.equalsIgnoreCase("SYSDATE") ||
+                    trimmed.equalsIgnoreCase("CURRENT_TIMESTAMP") ||
+                    trimmed.equalsIgnoreCase("NULL")) {
+                return trimmed.toUpperCase();
+            }
+
+            // Dla wartości tekstowych - dodaj apostrofy
+            return "'" + trimmed + "'";
+        }
     }
-
     public void closeConnection() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();

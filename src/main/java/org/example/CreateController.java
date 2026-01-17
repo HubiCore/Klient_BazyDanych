@@ -44,6 +44,23 @@ public class CreateController {
 
     private ColumnForm createColumnForm(int columnNumber) {
         ColumnForm columnForm = new ColumnForm(columnNumber);
+
+        // Użyj funkcji get_table_names() z ZooController
+        try {
+            ChoiceBox<String> tablesChoiceBox = zooController.get_table_names();
+            columnForm.getForeignKeyTableChoice().setItems(tablesChoiceBox.getItems());
+
+            // Dodaj placeholder jako pierwszą pozycję
+            if (!tablesChoiceBox.getItems().isEmpty()) {
+                // Możemy ustawić pierwszą tabelę jako domyślną lub pozostawić puste
+                // columnForm.getForeignKeyTableChoice().setValue(tablesChoiceBox.getItems().get(0));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Błąd", "Nie można załadować tabel",
+                    "Nie udało się załadować listy tabel: " + e.getMessage());
+        }
+
         columnForm.getForeignKeyTableChoice().getSelectionModel().selectedItemProperty().addListener((obs, oldTable, newTable) -> {
             if (newTable != null) {
                 try {
@@ -64,6 +81,12 @@ public class CreateController {
         columnForm.getConstraintChoice().getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             boolean isForeignKey = "FOREIGN KEY".equals(newVal);
             columnForm.setForeignKeyFieldsVisible(isForeignKey);
+
+            // Jeśli wybrano FOREIGN KEY i nie ma wybranej tabeli, ustaw pierwszą dostępną
+            if (isForeignKey && columnForm.getForeignKeyTableChoice().getValue() == null
+                    && !columnForm.getForeignKeyTableChoice().getItems().isEmpty()) {
+                columnForm.getForeignKeyTableChoice().setValue(columnForm.getForeignKeyTableChoice().getItems().get(0));
+            }
         });
 
         return columnForm;
@@ -100,9 +123,23 @@ public class CreateController {
         try {
             zooController.createTable(tableName, columnDefinitions);
             showAlert("Sukces", "Tabela utworzona", "Tabela '" + tableName + "' została pomyślnie utworzona.");
+
+            // Odśwież listę tabel w każdym ColumnForm po utworzeniu nowej tabeli
+            refreshTableLists();
             clearForm();
         } catch (SQLException e) {
             showAlert("Błąd SQL", "Nie udało się utworzyć tabeli", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void refreshTableLists() {
+        try {
+            ChoiceBox<String> tablesChoiceBox = zooController.get_table_names();
+            for (ColumnForm columnForm : columnForms) {
+                columnForm.getForeignKeyTableChoice().setItems(tablesChoiceBox.getItems());
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -121,6 +158,7 @@ public class CreateController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
     private class ColumnForm {
         private final VBox container;
         private final TextField columnNameField;
@@ -143,10 +181,6 @@ public class CreateController {
                     "NOT NULL", "PRIMARY KEY", "UNIQUE", "FOREIGN KEY"
             );
 
-            List<String> tables = List.of(
-                    "Pracownicy", "Bilet", "Klienci", "Wybiegi", "Klatki", "Karmienia"
-            );
-
             Label nameLabel = new Label("Kolumna #" + columnNumber + " - Nazwa:");
             columnNameField = new TextField();
             columnNameField.setPromptText("Nazwa kolumny");
@@ -159,15 +193,16 @@ public class CreateController {
             constraintChoice = new ChoiceBox<>(FXCollections.observableArrayList(constraints));
 
             Label fkTableLabel = new Label("Tabela (dla FOREIGN KEY):");
-            foreignKeyTableChoice = new ChoiceBox<>(FXCollections.observableArrayList(tables));
+            foreignKeyTableChoice = new ChoiceBox<>();
 
             Label fkColumnLabel = new Label("Kolumna (dla FOREIGN KEY):");
-
             foreignKeyColumnChoice = new ChoiceBox<>();
+
             fkTableLabel.setVisible(false);
             foreignKeyTableChoice.setVisible(false);
             fkColumnLabel.setVisible(false);
             foreignKeyColumnChoice.setVisible(false);
+
             container.getChildren().addAll(
                     nameLabel, columnNameField,
                     typeLabel, dataTypeChoice,

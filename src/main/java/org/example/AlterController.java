@@ -59,10 +59,22 @@ public class AlterController {
     @FXML
     private void initialize() {
         zooController = new ZooController();
+        loadTables();
         setupEventHandlers();
         updateUIForOperation();
     }
-
+    private void loadTables() {
+        try {
+            ChoiceBox<String> tables = zooController.get_table_names();
+            tableChoiceBox.getItems().clear();
+            tableChoiceBox.getItems().addAll(tables.getItems());
+            if (!tableChoiceBox.getItems().isEmpty()) {
+                tableChoiceBox.setValue(tableChoiceBox.getItems().get(0));
+            }
+        } catch (SQLException e) {
+            showError("Błąd ładowania tabel: " + e.getMessage());
+        }
+    }
     private void setupEventHandlers() {
         // Aktualizuj UI po wyborze operacji
         operationChoiceBox.getSelectionModel().selectedItemProperty().addListener(
@@ -427,7 +439,6 @@ public class AlterController {
             throw new IllegalArgumentException("Proszę podać nową nazwę tabeli");
         }
         zooController.renameTable(tableName, newTableName);
-        // Zaktualizuj listę tabel w ChoiceBox
         int index = tableChoiceBox.getItems().indexOf(tableName);
         if (index >= 0) {
             tableChoiceBox.getItems().set(index, newTableName);

@@ -7,6 +7,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class TableController {
     @FXML
@@ -41,9 +42,10 @@ public class TableController {
         try {
             zooController = new ZooController();
 
-            tableChoiceBox.getItems().addAll("Pracownicy", "Bilet", "Klienci", "Wybiegi", "Klatki", "Karmienia");
-            tableChoiceBox.setValue("Pracownicy");
+            // Użycie istniejącej metody get_table_names() która zwraca ChoiceBox<String>
+            loadTableNamesFromDatabase();
 
+            // Ustawienie obsługi zmiany tabeli
             tableChoiceBox.setOnAction(event -> {
                 String selectedTable = tableChoiceBox.getValue();
                 if (selectedTable != null) {
@@ -60,11 +62,42 @@ public class TableController {
             kolejnoscChoiceBox.setValue("Rosnąco");
 
             // Załaduj kolumny dla początkowej tabeli
-            loadColumnNames("Pracownicy");
-            displayTableData("Pracownicy");
+            if (!tableChoiceBox.getItems().isEmpty()) {
+                String firstTable = tableChoiceBox.getValue();
+                if (firstTable != null) {
+                    loadColumnNames(firstTable);
+                    displayTableData(firstTable);
+                }
+            }
 
         } catch (Exception e) {
             System.out.println("Błąd inicjalizacji Nie można zainicjalizować kontrolera:\n" + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void loadTableNamesFromDatabase() {
+        try {
+            // Użycie istniejącej metody get_table_names() która zwraca ChoiceBox<String>
+            ChoiceBox<String> tablesFromDb = zooController.get_table_names();
+
+            // Pobierz listę nazw tabel z zwróconego ChoiceBox
+            ObservableList<String> tableNames = tablesFromDb.getItems();
+
+            // Wyczyść i ustaw nazwy tabel w tableChoiceBox
+            tableChoiceBox.getItems().clear();
+            tableChoiceBox.getItems().addAll(tableNames);
+
+            // Ustaw pierwszą tabelę jako wybraną (jeśli istnieje)
+            if (!tableNames.isEmpty() && tablesFromDb.getValue() != null) {
+                tableChoiceBox.setValue(tablesFromDb.getValue());
+            } else if (!tableNames.isEmpty()) {
+                tableChoiceBox.setValue(tableNames.get(0));
+            } else {
+                System.out.println("Brak tabel w bazie danych.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Błąd podczas pobierania nazw tabel z bazy danych:\n" + e.getMessage());
             e.printStackTrace();
         }
     }

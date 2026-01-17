@@ -28,17 +28,32 @@ public class UpdateController {
     private ChoiceBox<String> porownanieChoiceBox;
     @FXML
     private TextField warunekWartoscTextField;
+
     @FXML
     public void initialize() {
         try {
             zooController = new ZooController();
-            tableChoiceBox.getItems().addAll("Pracownicy", "Bilet", "Klienci", "Wybiegi", "Klatki", "Karmienia");
-            tableChoiceBox.setValue("Pracownicy");
+            refreshTableList();
         } catch (Exception e) {
             System.out.println("Błąd inicjalizacji Nie można zainicjalizować kontrolera:\n" + e.getMessage());
             e.printStackTrace();
         }
     }
+
+    public void refreshTableList() {
+        try {
+            ChoiceBox<String> tables = zooController.get_table_names();
+            tableChoiceBox.setItems(tables.getItems());
+
+            if (!tables.getItems().isEmpty()) {
+                tableChoiceBox.setValue(tables.getItems().get(0));
+            }
+        } catch (SQLException e) {
+            System.out.println("Błąd podczas pobierania listy tabel: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public void update_wybierz_kolumne() {
         try {
             String selectedTable = tableChoiceBox.getValue();
@@ -111,6 +126,7 @@ public class UpdateController {
             }
         }
     }
+
     private boolean isNumeric(String str) {
         try {
             Double.parseDouble(str);

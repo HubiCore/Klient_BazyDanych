@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.collections.ObservableList;
 
 import java.sql.SQLException;
 
@@ -37,9 +38,8 @@ public class DeleteController {
         try {
             zooController = new ZooController();
 
-            // Inicjalizacja tabel
-            tableChoiceBox.getItems().addAll("Pracownicy", "Bilet", "Klienci", "Wybiegi", "Klatki", "Karmienia");
-            tableChoiceBox.setValue("Pracownicy");
+            // Pobieranie nazw tabel z bazy danych
+            refreshTables();
 
             // Sprawdź czy porownanieChoiceBox nie jest null przed użyciem
             if (porownanieChoiceBox != null) {
@@ -50,11 +50,40 @@ public class DeleteController {
                 System.out.println("Warning: porownanieChoiceBox is null");
             }
 
-            // Odśwież kolumny przy starcie
-            odswiezKolumny();
+            // Odśwież kolumny przy starcie (jeśli tabela została wybrana)
+            if (tableChoiceBox.getValue() != null && !tableChoiceBox.getValue().isEmpty()) {
+                odswiezKolumny();
+            }
 
         } catch (Exception e) {
             System.out.println("Błąd inicjalizacji: Nie można zainicjalizować kontrolera:\n" + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void refreshTables() {
+        try {
+            // Pobieranie nazw tabel z bazy danych
+            ChoiceBox<String> tablesFromDB = zooController.get_table_names();
+            tableChoiceBox.getItems().clear();
+
+            // Kopiowanie nazw tabel z zwróconego ChoiceBox
+            if (tablesFromDB != null && tablesFromDB.getItems() != null) {
+                tableChoiceBox.getItems().addAll(tablesFromDB.getItems());
+
+                // Ustawienie domyślnej wartości, jeśli dostępne są tabele
+                if (!tableChoiceBox.getItems().isEmpty()) {
+                    tableChoiceBox.setValue(tableChoiceBox.getItems().get(0));
+                } else {
+                    System.out.println("Warning: No tables found in the database.");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Błąd podczas pobierania nazw tabel: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Nieoczekiwany błąd podczas odświeżania tabel: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -66,10 +95,13 @@ public class DeleteController {
             if (selectedTable != null && !selectedTable.isEmpty()) {
                 ChoiceBox<String> columnChoiceBox = zooController.get_column_names(selectedTable);
                 kolumnyChoiceBox.getItems().clear();
-                kolumnyChoiceBox.getItems().addAll(columnChoiceBox.getItems());
 
-                if (!columnChoiceBox.getItems().isEmpty()) {
-                    kolumnyChoiceBox.setValue(columnChoiceBox.getItems().get(0));
+                if (columnChoiceBox != null && columnChoiceBox.getItems() != null) {
+                    kolumnyChoiceBox.getItems().addAll(columnChoiceBox.getItems());
+
+                    if (!columnChoiceBox.getItems().isEmpty()) {
+                        kolumnyChoiceBox.setValue(columnChoiceBox.getItems().get(0));
+                    }
                 }
             }
         } catch (SQLException e) {
