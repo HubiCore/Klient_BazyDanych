@@ -73,9 +73,6 @@ public class ZooController {
             stmt.execute(query);
         }
     }
-    public void create_table(String table, String[] kolumny, String[] typy_danych) throws SQLException {
-
-    }
     public void delete_table(String table) throws SQLException {
         String query = "DELETE FROM " + table;
         try (Statement statement = ensureConnection().createStatement()) {
@@ -129,7 +126,62 @@ public class ZooController {
             return false;
         }
     }
+    public void createTable(String tableName, List<CreateController.ColumnDefinition> columns) throws SQLException {
+        if (tableName == null || tableName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nazwa tabeli nie może być pusta");
+        }
+        if (columns == null || columns.isEmpty()) {
+            throw new IllegalArgumentException("Tabela musi mieć co najmniej jedną kolumnę");
+        }
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("CREATE TABLE ").append(tableName).append(" (\n");
+        List<String> primaryKeys = new ArrayList<>();
+        List<String> foreignKeys = new ArrayList<>();
+        for (int i = 0; i < columns.size(); i++) {
+            CreateController.ColumnDefinition column = columns.get(i);
+            queryBuilder.append("    ").append(column.getColumnName())
+                    .append(" ").append(column.getDataType());
+            if (column.getConstraint() != null && !column.getConstraint().isEmpty()) {
+                if ("PRIMARY KEY".equals(column.getConstraint())) {
+                    primaryKeys.add(column.getColumnName());
+                } else if ("FOREIGN KEY".equals(column.getConstraint())) {
+                    if (column.getForeignKeyTable() != null && column.getForeignKeyColumn() != null) {
+                        foreignKeys.add("    FOREIGN KEY (" + column.getColumnName() + ") REFERENCES "
+                                + column.getForeignKeyTable() + "(" + column.getForeignKeyColumn() + ")");
+                    }
+                } else {
+                    queryBuilder.append(" ").append(column.getConstraint());
+                }
+            }
 
+            if (i < columns.size() - 1 || !primaryKeys.isEmpty() || !foreignKeys.isEmpty()) {
+                queryBuilder.append(",");
+            }
+            queryBuilder.append("\n");
+        }
+        if (!primaryKeys.isEmpty()) {
+            queryBuilder.append("    CONSTRAINT ").append(tableName).append("_PK PRIMARY KEY (")
+                    .append(String.join(", ", primaryKeys)).append(")");
+            if (!foreignKeys.isEmpty()) {
+                queryBuilder.append(",");
+            }
+            queryBuilder.append("\n");
+        }
+        for (int i = 0; i < foreignKeys.size(); i++) {
+            queryBuilder.append(foreignKeys.get(i));
+            if (i < foreignKeys.size() - 1) {
+                queryBuilder.append(",");
+            }
+            queryBuilder.append("\n");
+        }
+        queryBuilder.append(")");
+        String query = queryBuilder.toString();
+        System.out.println("Executing query:\n" + query);
+
+        try (Statement stmt = ensureConnection().createStatement()) {
+            stmt.execute(query);
+        }
+    }
     public void Drop_Table (String table) throws SQLException {
         String query = "DROP TABLE "+ table + " CASCADE CONSTRAINTS";
         Statement statement = ensureConnection().createStatement();

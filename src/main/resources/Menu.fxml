@@ -12,5 +12,6 @@
       <Button mnemonicParsing="false" text="DROP" layoutX="60" layoutY="340" prefHeight="70.0" prefWidth="250.0" onAction="#switch_Drop"/>
       <Button mnemonicParsing="false" text="DELETE" layoutX="60" layoutY="420" prefHeight="70.0" prefWidth="250.0" onAction="#switch_Delete"/>
       <Button mnemonicParsing="false" text="ALTER" layoutX="350" layoutY="100" prefHeight="70.0" prefWidth="250.0" onAction="#switch_Alter_natywka"/>
+      <Button mnemonicParsing="false" text="CREATE" layoutX="350" layoutY="180" prefHeight="70.0" prefWidth="250.0" onAction="#switch_create"/>
    </children>
 </AnchorPane>
