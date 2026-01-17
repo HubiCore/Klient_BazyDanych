@@ -126,6 +126,53 @@ public class ZooController {
             return false;
         }
     }
+
+    public void insertIntoTable(String tableName, List<String> columnNames, List<Object> values) throws SQLException {
+        if (columnNames.size() != values.size()) {
+            throw new IllegalArgumentException("Liczba kolumn i wartości musi być taka sama");
+        }
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("INSERT INTO ").append(tableName).append(" (");
+        for (int i = 0; i < columnNames.size(); i++) {
+            queryBuilder.append(columnNames.get(i));
+            if (i < columnNames.size() - 1) {
+                queryBuilder.append(", ");
+            }
+        }
+        queryBuilder.append(") VALUES (");
+        for (int i = 0; i < values.size(); i++) {
+            queryBuilder.append("?");
+            if (i < values.size() - 1) {
+                queryBuilder.append(", ");
+            }
+        }
+
+        queryBuilder.append(")");
+
+        String query = queryBuilder.toString();
+
+        try (PreparedStatement pstmt = ensureConnection().prepareStatement(query)) {
+            for (int i = 0; i < values.size(); i++) {
+                Object value = values.get(i);
+                if (value == null) {
+                    pstmt.setNull(i + 1, java.sql.Types.VARCHAR);
+                } else {
+                    String strValue = value.toString();
+                    if (isNumeric(strValue)) {
+                        if (strValue.contains(".")) {
+                            pstmt.setDouble(i + 1, Double.parseDouble(strValue));
+                        } else {
+                            pstmt.setInt(i + 1, Integer.parseInt(strValue));
+                        }
+                    } else {
+                        pstmt.setString(i + 1, strValue);
+                    }
+                }
+            }
+
+            pstmt.executeUpdate();
+        }
+    }
     public void createTable(String tableName, List<CreateController.ColumnDefinition> columns) throws SQLException {
         if (tableName == null || tableName.trim().isEmpty()) {
             throw new IllegalArgumentException("Nazwa tabeli nie może być pusta");
