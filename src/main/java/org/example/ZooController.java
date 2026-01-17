@@ -20,6 +20,59 @@ public class ZooController {
         }
         return connection;
     }
+    public void addColumn(String tableName, String columnName, String dataType) throws SQLException {
+        String query = "ALTER TABLE " + tableName + " ADD " + columnName + " " + dataType;
+        try (Statement stmt = ensureConnection().createStatement()) {
+            stmt.execute(query);
+        }
+    }
+
+    public void dropColumn(String tableName, String columnName) throws SQLException {
+        String query = "ALTER TABLE " + tableName + " DROP COLUMN " + columnName;
+        try (Statement stmt = ensureConnection().createStatement()) {
+            stmt.execute(query);
+        }
+    }
+
+    public void modifyColumnType(String tableName, String columnName, String newDataType) throws SQLException {
+        String query = "ALTER TABLE " + tableName + " MODIFY " + columnName + " " + newDataType;
+        try (Statement stmt = ensureConnection().createStatement()) {
+            stmt.execute(query);
+        }
+    }
+
+    public void renameColumn(String tableName, String oldColumnName, String newColumnName) throws SQLException {
+        String query = "ALTER TABLE " + tableName + " RENAME COLUMN " + oldColumnName + " TO " + newColumnName;
+        try (Statement stmt = ensureConnection().createStatement()) {
+            stmt.execute(query);
+        }
+    }
+
+    public void addConstraint(String tableName, String constraintDefinition, String constraintName) throws SQLException {
+        String query;
+        if (constraintName != null && !constraintName.trim().isEmpty()) {
+            query = "ALTER TABLE " + tableName + " ADD CONSTRAINT " + constraintName.trim() + " " + constraintDefinition;
+        } else {
+            query = "ALTER TABLE " + tableName + " " + constraintDefinition;
+        }
+        try (Statement stmt = ensureConnection().createStatement()) {
+            stmt.execute(query);
+        }
+    }
+
+    public void dropConstraint(String tableName, String constraintName) throws SQLException {
+        String query = "ALTER TABLE " + tableName + " DROP CONSTRAINT " + constraintName;
+        try (Statement stmt = ensureConnection().createStatement()) {
+            stmt.execute(query);
+        }
+    }
+
+    public void renameTable(String oldTableName, String newTableName) throws SQLException {
+        String query = "ALTER TABLE " + oldTableName + " RENAME TO " + newTableName;
+        try (Statement stmt = ensureConnection().createStatement()) {
+            stmt.execute(query);
+        }
+    }
     public void create_table(String table, String[] kolumny, String[] typy_danych) throws SQLException {
 
     }

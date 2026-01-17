@@ -7,70 +7,105 @@
 <?import javafx.scene.text.*?>
 
 <AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AlterController">
-   <children>
-      <ChoiceBox layoutX="90.0" layoutY="135.0" prefWidth="150.0">
-          <items>
-              <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="Pracownicy" />
-                  <String fx:value="Bilet" />
-                  <String fx:value="Klienci" />
-                  <String fx:value="Wybiegi" />
-                  <String fx:value="Klatki" />
-                  <String fx:value="Karmienia" />
-              </FXCollections>
-          </items>
-      </ChoiceBox>
-      <ChoiceBox layoutX="299.0" layoutY="135.0" prefWidth="150.0">
-          <items>
-              <FXCollections fx:factory="observableArrayList">
-                  <String fx:value="Dodaj kolumne" />
-                  <String fx:value="Usuń kolumne" />
-                  <String fx:value="Zmień typ danych kolumny" />
-                  <String fx:value="Zmień nazwe kolumny" />
-                  <String fx:value="Dodaj ograniczenie" />
-                  <String fx:value="Usuń ograniczenie" />
-                  <String fx:value="Zmień nazwe tabeli" />
-              </FXCollections>
-          </items>
-      </ChoiceBox>
-      <Button layoutX="515.0" layoutY="135.0" mnemonicParsing="false" text="Button" />
-       <ChoiceBox layoutX="634.0" layoutY="135.0" prefWidth="150.0">
-           <items>
-               <FXCollections fx:factory="observableArrayList">
-                   <!-- Podstawowe typy znakowe -->
-                   <String fx:value="VARCHAR2" />
-                   <String fx:value="CHAR" />
-                   <String fx:value="NCHAR" />
-                   <String fx:value="NVARCHAR2" />
-                   <String fx:value="CLOB" />
-                   <String fx:value="NCLOB" />
-                   <String fx:value="LONG" />
-                   <!-- Typy numeryczne -->
-                   <String fx:value="NUMBER" />
-                   <String fx:value="INTEGER" />
-                   <String fx:value="FLOAT" />
-                   <String fx:value="BINARY_FLOAT" />
-                   <String fx:value="BINARY_DOUBLE" />
-                   <!-- Typy daty/czasu -->
-                   <String fx:value="DATE" />
-                   <String fx:value="TIMESTAMP" />
-                   <String fx:value="TIMESTAMP WITH TIME ZONE" />
-                   <String fx:value="TIMESTAMP WITH LOCAL TIME ZONE" />
-                   <String fx:value="INTERVAL YEAR TO MONTH" />
-                   <String fx:value="INTERVAL DAY TO SECOND" />
-                   <!-- Typy binarne -->
-                   <String fx:value="RAW" />
-                   <String fx:value="LONG RAW" />
-                   <String fx:value="BLOB" />
-                   <String fx:value="BFILE" />
-                   <!-- Inne typy -->
-                   <String fx:value="ROWID" />
-                   <String fx:value="UROWID" />
-               </FXCollections>
-           </items>
-       </ChoiceBox>
-      <TextField layoutX="828.0" layoutY="135.0" />
-      <TextField layoutX="634.0" layoutY="227.0" />
-      <Text layoutX="702.0" layoutY="200.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Lub" />
-   </children>
+    <children>
+        <ChoiceBox fx:id="tableChoiceBox" layoutX="90.0" layoutY="135.0" prefWidth="150.0">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Pracownicy" />
+                    <String fx:value="Bilet" />
+                    <String fx:value="Klienci" />
+                    <String fx:value="Wybiegi" />
+                    <String fx:value="Klatki" />
+                    <String fx:value="Karmienia" />
+                </FXCollections>
+            </items>
+        </ChoiceBox>
+        <ChoiceBox fx:id="operationChoiceBox" layoutX="299.0" layoutY="135.0" prefWidth="150.0">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Dodaj kolumne" />
+                    <String fx:value="Usuń kolumne" />
+                    <String fx:value="Zmień typ danych kolumny" />
+                    <String fx:value="Zmień nazwe kolumny" />
+                    <String fx:value="Dodaj ograniczenie" />
+                    <String fx:value="Usuń ograniczenie" />
+                    <String fx:value="Zmień nazwe tabeli" />
+                </FXCollections>
+            </items>
+        </ChoiceBox>
+        <Button fx:id="confirmButton" layoutX="480.0" layoutY="135.0" mnemonicParsing="false" text="Potwierdź operacje" />
+        <ChoiceBox fx:id="dataTypeChoiceBox" layoutX="856.0" layoutY="135.0" prefWidth="150.0">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <!-- Podstawowe typy znakowe -->
+                    <String fx:value="VARCHAR2" />
+                    <String fx:value="CHAR" />
+                    <String fx:value="NCHAR" />
+                    <String fx:value="NVARCHAR2" />
+                    <String fx:value="CLOB" />
+                    <String fx:value="NCLOB" />
+                    <String fx:value="LONG" />
+                    <!-- Typy numeryczne -->
+                    <String fx:value="NUMBER" />
+                    <String fx:value="INTEGER" />
+                    <String fx:value="FLOAT" />
+                    <String fx:value="BINARY_FLOAT" />
+                    <String fx:value="BINARY_DOUBLE" />
+                    <!-- Typy daty/czasu -->
+                    <String fx:value="DATE" />
+                    <String fx:value="TIMESTAMP" />
+                    <String fx:value="TIMESTAMP WITH TIME ZONE" />
+                    <String fx:value="TIMESTAMP WITH LOCAL TIME ZONE" />
+                    <String fx:value="INTERVAL YEAR TO MONTH" />
+                    <String fx:value="INTERVAL DAY TO SECOND" />
+                    <!-- Typy binarne -->
+                    <String fx:value="RAW" />
+                    <String fx:value="LONG RAW" />
+                    <String fx:value="BLOB" />
+                    <String fx:value="BFILE" />
+                    <!-- Inne typy -->
+                    <String fx:value="ROWID" />
+                    <String fx:value="UROWID" />
+                </FXCollections>
+            </items>
+        </ChoiceBox>
+        <TextField fx:id="secondTextField" layoutX="661.0" layoutY="92.0" promptText="Nazwa nowej kolumny" />
+        <Button fx:id="executeButton" layoutX="1462.0" layoutY="135.0" mnemonicParsing="false" text="Wykonaj" />
+        <Text layoutX="138.0" layoutY="119.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tabela" />
+        <Text layoutX="321.0" layoutY="119.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Co chcesz zrobić?" />
+        <Text layoutX="896.0" layoutY="119.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Typ danych" />
+        <ChoiceBox fx:id="existingColumnChoiceBox" layoutX="667.0" layoutY="175.0" prefWidth="150.0" />
+        <Text layoutX="684.0" layoutY="166.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Istniejąca kolumna" />
+        <ChoiceBox fx:id="constraintTypeChoiceBox" layoutX="1049.0" layoutY="135.0" prefWidth="150.0">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="NOT NULL" />
+                    <String fx:value="PRIMARY KEY" />
+                    <String fx:value="UNIQUE" />
+                    <String fx:value="FOREIGN KEY" />
+                </FXCollections>
+            </items>
+        </ChoiceBox>
+        <Text layoutX="1092.0" layoutY="123.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Constraint" />
+        <ChoiceBox fx:id="foreignTableChoiceBox" layoutX="1239.0" layoutY="101.0" prefWidth="150.0">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Pracownicy" />
+                    <String fx:value="Bilet" />
+                    <String fx:value="Klienci" />
+                    <String fx:value="Wybiegi" />
+                    <String fx:value="Klatki" />
+                    <String fx:value="Karmienia" />
+                </FXCollections>
+            </items>
+        </ChoiceBox>
+        <ChoiceBox fx:id="foreignColumnChoiceBox" layoutX="1239.0" layoutY="162.0" prefWidth="150.0" />
+        <Text layoutX="1166.0" layoutY="51.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wybierz klucz poboczny (jeśli w constraint wybrałeś)" />
+        <Text layoutX="1294.0" layoutY="88.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tabela" />
+        <Text layoutX="1287.0" layoutY="153.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kolumna" />
+        <TextField fx:id="constraintNameTextField" layoutX="1049.0" layoutY="175.0" prefWidth="150.0" promptText="Nazwa ograniczenia" />
+        <TextField fx:id="columnSizeTextField" layoutX="856.0" layoutY="175.0" prefWidth="100.0" promptText="Rozmiar" />
+        <ChoiceBox fx:id="constraintNameChoiceBox" layoutX="667.0" layoutY="220.0" prefWidth="150.0" />
+        <Text fx:id="instructionText" layoutX="90.0" layoutY="200.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wybierz tabelę i operację" />
+    </children>
 </AnchorPane>
