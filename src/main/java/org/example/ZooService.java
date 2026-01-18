@@ -31,32 +31,5 @@ public class ZooService {
             e.printStackTrace();
         }
     }
-    /*
-    public void displayPracownicy() {
-        try {
-            ResultSet rs = zooController.getPracownicy("*");
-            TableViewHelper.populateTableView(tableView, rs);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public void displayPracownicyWhere(String condition) {
-        try {
-            ResultSet rs = zooController.getPracownicyWhere("*", condition);
-            TableViewHelper.populateTableView(tableView, rs);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public void displayKlienci() {
-        try {
-            ResultSet rs = zooController.getKlienci("*");
-            TableViewHelper.populateTableView(tableView, rs);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-     */
 
 }

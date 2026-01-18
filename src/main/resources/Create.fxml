@@ -93,5 +93,6 @@
 
       <Button fx:id="generateFormsButton" layoutX="101.0" layoutY="247.0" mnemonicParsing="false" text="Generuj formularze kolumn" />
       <Button fx:id="createTableButton" layoutX="126.0" layoutY="500.0" mnemonicParsing="false" text="Stwórz nową tabelę" />
+      <Button layoutX="1811.0" layoutY="43.0" mnemonicParsing="false" onAction="#switch_to_menu" text="Wyjdź" />
    </children>
 </AnchorPane>

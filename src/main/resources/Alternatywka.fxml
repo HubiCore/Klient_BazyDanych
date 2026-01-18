@@ -107,5 +107,6 @@
         <TextField fx:id="columnSizeTextField" layoutX="856.0" layoutY="175.0" prefWidth="100.0" promptText="Rozmiar" />
         <ChoiceBox fx:id="constraintNameChoiceBox" layoutX="667.0" layoutY="220.0" prefWidth="150.0" />
         <Text fx:id="instructionText" layoutX="90.0" layoutY="200.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wybierz tabelę i operację" />
+        <Button layoutX="1811.0" layoutY="43.0" mnemonicParsing="false" onAction="#switch_to_menu" text="Wyjdź" />
     </children>
 </AnchorPane>

@@ -8,24 +8,21 @@
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.example.ProcedureController"
-            prefHeight="700.0" prefWidth="900.0"
-            style="-fx-background-color: #f0f0f0;">
+            prefHeight="700.0" prefWidth="900.0">
 
     <TabPane fx:id="procedureTabPane" layoutX="10" layoutY="10"
              prefHeight="680.0" prefWidth="880.0" tabClosingPolicy="UNAVAILABLE">
 
-        <!-- Karta 1: Raport sprzedaży biletów -->
         <Tab text="Raport sprzedaży biletów">
-            <VBox spacing="10" style="-fx-padding: 20;">
-                <Label text="Generuj raport sprzedaży biletów"
-                       style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+            <VBox spacing="10">
+                <Label text="Generuj raport sprzedaży biletów"/>
 
-                <HBox spacing="10" style="-fx-padding: 0 0 10 0;">
+                <HBox spacing="10">
                     <Label text="Zoo:" minWidth="80"/>
                     <ChoiceBox fx:id="zooChoiceBox" prefWidth="300"/>
                 </HBox>
 
-                <HBox spacing="10" style="-fx-padding: 0 0 10 0;">
+                <HBox spacing="10">
                     <Label text="Miesiąc:" minWidth="80"/>
                     <ChoiceBox fx:id="monthChoiceBox" prefWidth="100"/>
 
@@ -33,32 +30,27 @@
                     <ChoiceBox fx:id="yearChoiceBox" prefWidth="100"/>
                 </HBox>
 
-                <HBox spacing="10" style="-fx-padding: 0 0 20 0;">
+                <HBox spacing="10">
                     <Button text="Generuj raport"
-                            onAction="#generujRaport"
-                            style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+                            onAction="#generujRaport"/>
                     <Button text="Wyczyść"
-                            onAction="#wyczyscRaport"
-                            style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
+                            onAction="#wyczyscRaport"/>
                 </HBox>
 
                 <Separator/>
 
-                <Label text="Wynik raportu:" style="-fx-font-weight: bold; -fx-padding: 10 0 5 0;"/>
+                <Label text="Wynik raportu:"/>
                 <TextArea fx:id="raportTextArea"
                           prefHeight="400"
                           prefWidth="800"
                           editable="false"
-                          wrapText="true"
-                          style="-fx-font-family: 'Monospaced';"/>
+                          wrapText="true"/>
             </VBox>
         </Tab>
 
-        <!-- Karta 2: Dodawanie zwierzęcia -->
         <Tab text="Dodaj zwierzę">
-            <VBox spacing="15" style="-fx-padding: 20;">
-                <Label text="Dodaj nowe zwierzę"
-                       style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+            <VBox spacing="15">
+                <Label text="Dodaj nowe zwierzę"/>
 
                 <GridPane hgap="10" vgap="10">
                     <columnConstraints>
@@ -86,47 +78,40 @@
                     <TextField fx:id="zwierzeOpiekunField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
                 </GridPane>
 
-                <HBox spacing="10" style="-fx-padding: 15 0 0 0;">
+                <HBox spacing="10">
                     <Button text="Dodaj zwierzę"
-                            onAction="#dodajZwierze"
-                            style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
-                </HBox>
-
-                <Separator style="-fx-padding: 20 0 20 0;"/>
-
-                <Label fx:id="zwierzeResultLabel"
-                       style="-fx-font-weight: bold; -fx-text-fill: #2E7D32;"/>
-            </VBox>
-        </Tab>
-
-        <!-- Karta 3: Wyszukiwanie zwierzęcia -->
-        <Tab text="Znajdź zwierzę">
-            <VBox spacing="15" style="-fx-padding: 20;">
-                <Label text="Znajdź zwierzę po nazwie"
-                       style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
-
-                <HBox spacing="10" style="-fx-padding: 0 0 15 0;">
-                    <Label text="Nazwa zwierzęcia:"/>
-                    <TextField fx:id="szukajZwierzeField" prefWidth="300"/>
-                    <Button text="Szukaj"
-                            onAction="#szukajZwierze"
-                            style="-fx-background-color: #9C27B0; -fx-text-fill: white;"/>
-                    <Button text="Wyczyść"
-                            onAction="#wyczyscSzukanie"
-                            style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
+                            onAction="#dodajZwierze"/>
                 </HBox>
 
                 <Separator/>
 
-                <Label text="Wynik wyszukiwania:" style="-fx-font-weight: bold; -fx-padding: 10 0 5 0;"/>
+                <Label fx:id="zwierzeResultLabel"/>
+            </VBox>
+        </Tab>
+        <Tab text="Znajdź zwierzę">
+            <VBox spacing="15">
+                <Label text="Znajdź zwierzę po nazwie"/>
+
+                <HBox spacing="10">
+                    <Label text="Nazwa zwierzęcia:"/>
+                    <TextField fx:id="szukajZwierzeField" prefWidth="300"/>
+                    <Button text="Szukaj"
+                            onAction="#szukajZwierze"/>
+                    <Button text="Wyczyść"
+                            onAction="#wyczyscSzukanie"/>
+                </HBox>
+
+                <Separator/>
+
+                <Label text="Wynik wyszukiwania:"/>
                 <TextArea fx:id="szukajResultTextArea"
                           prefHeight="300"
                           prefWidth="800"
                           editable="false"
                           wrapText="true"/>
+
             </VBox>
         </Tab>
-
     </TabPane>
-
+    <Button layoutX="1811.0" layoutY="43.0" mnemonicParsing="false" onAction="#switch_to_menu" text="Wyjdź" />
 </AnchorPane>

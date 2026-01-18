@@ -51,5 +51,6 @@
         <Text layoutX="92.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kolumna" />
         <Text layoutX="262.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Symbol" />
         <Text layoutX="449.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wartość" />
+        <Button layoutX="1811.0" layoutY="43.0" mnemonicParsing="false" onAction="#switch_to_menu" text="Wyjdź" />
     </children>
 </AnchorPane>

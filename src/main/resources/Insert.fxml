@@ -36,5 +36,6 @@
                 </HBox>
             </children>
         </VBox>
+        <Button layoutX="1811.0" layoutY="43.0" mnemonicParsing="false" onAction="#switch_to_menu" text="Wyjdź" />
     </children>
 </AnchorPane>
