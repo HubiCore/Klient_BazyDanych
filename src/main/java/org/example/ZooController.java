@@ -3,10 +3,13 @@ package org.example;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ChoiceBox;
+import oracle.jdbc.internal.OracleTypes;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ZooController {
@@ -378,6 +381,121 @@ public class ZooController {
             return "'" + trimmed + "'";
         }
     }
+    public Map<String, Object> generujRaportSprzedazyBiletow(int zooId, int miesiac, int rok) throws SQLException {
+        Map<String, Object> result = new HashMap<>();
+
+        try (CallableStatement stmt = ensureConnection().prepareCall(
+                "{call GenerujRaportSprzedazyBiletow(?, ?, ?, ?, ?)}")) {
+
+            stmt.setInt(1, zooId);
+            stmt.setInt(2, miesiac);
+            stmt.setInt(3, rok);
+            stmt.registerOutParameter(4, OracleTypes.CURSOR);  // Podsumowanie
+            stmt.registerOutParameter(5, OracleTypes.CURSOR);  // Szczegóły
+
+            stmt.execute();
+
+            // Pobranie podsumowania
+            try (ResultSet rsPodsumowanie = (ResultSet) stmt.getObject(4)) {
+                if (rsPodsumowanie.next()) {
+                    result.put("nazwa_zoo", rsPodsumowanie.getString("nazwa_zoo"));
+                    result.put("okres", rsPodsumowanie.getString("okres"));
+                    result.put("laczna_sprzedaz", rsPodsumowanie.getDouble("laczna_sprzedaz"));
+                    result.put("liczba_biletow", rsPodsumowanie.getInt("liczba_biletow"));
+                    result.put("srednia_cena", rsPodsumowanie.getDouble("srednia_cena"));
+                }
+            }
+
+            // Pobranie szczegółów
+            List<Map<String, Object>> szczegoly = new ArrayList<>();
+            try (ResultSet rsSzczegoly = (ResultSet) stmt.getObject(5)) {
+                while (rsSzczegoly.next()) {
+                    Map<String, Object> detal = new HashMap<>();
+                    detal.put("data_biletu", rsSzczegoly.getString("data_biletu"));
+                    detal.put("cena", rsSzczegoly.getDouble("cena"));
+                    detal.put("klient_id", rsSzczegoly.getInt("klient_id"));
+                    szczegoly.add(detal);
+                }
+            }
+            result.put("szczegoly", szczegoly);
+
+        } catch (SQLException e) {
+            throw new SQLException("Błąd podczas generowania raportu: " + e.getMessage());
+        }
+
+        return result;
+    }
+
+    /**
+     * Wywołanie procedury DodajZwierze
+     */
+    public Map<String, Object> dodajZwierze(String nazwaZwierzęcia, String nazwaGatunku,
+                                            String nazwaKlatki, int idOpiekuna) throws SQLException {
+        Map<String, Object> result = new HashMap<>();
+
+        try (CallableStatement stmt = ensureConnection().prepareCall(
+                "{call DodajZwierze(?, ?, ?, ?, ?, ?)}")) {
+
+            stmt.setString(1, nazwaZwierzęcia);
+            stmt.setString(2, nazwaGatunku);
+            stmt.setString(3, nazwaKlatki);
+            stmt.setInt(4, idOpiekuna);
+            stmt.registerOutParameter(5, Types.NUMERIC);  // nowe_zwierze_id
+            stmt.registerOutParameter(6, Types.VARCHAR);  // komunikat
+
+            stmt.execute();
+
+            result.put("nowe_zwierze_id", stmt.getInt(5));
+            result.put("komunikat", stmt.getString(6));
+
+        } catch (SQLException e) {
+            throw new SQLException("Błąd podczas dodawania zwierzęcia: " + e.getMessage());
+        }
+
+        return result;
+    }
+
+    /**
+     * Wywołanie funkcji ZnajdzZwierzePoNazwie
+     */
+    public String znajdzZwierzePoNazwie(String nazwaZwierzęcia) throws SQLException {
+        String wynik = null;
+
+        try (CallableStatement stmt = ensureConnection().prepareCall(
+                "{ ? = call ZnajdzZwierzePoNazwie(?) }")) {
+
+            stmt.registerOutParameter(1, Types.VARCHAR);
+            stmt.setString(2, nazwaZwierzęcia);
+
+            stmt.execute();
+
+            wynik = stmt.getString(1);
+
+        } catch (SQLException e) {
+            throw new SQLException("Błąd podczas wyszukiwania zwierzęcia: " + e.getMessage());
+        }
+
+        return wynik;
+    }
+
+    public ResultSet getZooList() throws SQLException {
+        String query = "SELECT Zoo_ID, Nazwa FROM Zoo ORDER BY Nazwa";
+        Statement stmt = ensureConnection().createStatement();
+        return stmt.executeQuery(query);
+    }
+
+    public ResultSet getPracownicyList() throws SQLException {
+        String query = "SELECT Pracownik_ID, Imie || ' ' || Nazwisko AS Nazwa FROM Pracownicy ORDER BY Nazwisko";
+        Statement stmt = ensureConnection().createStatement();
+        return stmt.executeQuery(query);
+    }
+
+    public ResultSet getKlatkiList() throws SQLException {
+        String query = "SELECT Klatka_ID, Nazwa FROM Klatki ORDER BY Nazwa";
+        Statement stmt = ensureConnection().createStatement();
+        return stmt.executeQuery(query);
+    }
+
     public void closeConnection() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();

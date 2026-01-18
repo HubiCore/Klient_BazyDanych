@@ -1,4 +1,3 @@
--- First, drop existing tables if they exist (in reverse order due to dependencies)
 DROP TABLE Karmienia CASCADE CONSTRAINTS;
 DROP TABLE Zwierzeta CASCADE CONSTRAINTS;
 DROP TABLE Gatunki CASCADE CONSTRAINTS;
@@ -9,7 +8,6 @@ DROP TABLE Klienci CASCADE CONSTRAINTS;
 DROP TABLE Bilet CASCADE CONSTRAINTS;
 DROP TABLE Zoo CASCADE CONSTRAINTS;
 
--- Now create tables with corrected foreign key references
 CREATE TABLE Zoo(
     Zoo_ID NUMBER(6) CONSTRAINT Zoo_PK PRIMARY KEY,
     Nazwa VARCHAR2(30)

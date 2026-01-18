@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.ProcedureController"
+            prefHeight="700.0" prefWidth="900.0"
+            style="-fx-background-color: #f0f0f0;">
+
+    <TabPane fx:id="procedureTabPane" layoutX="10" layoutY="10"
+             prefHeight="680.0" prefWidth="880.0" tabClosingPolicy="UNAVAILABLE">
+
+        <!-- Karta 1: Raport sprzedaży biletów -->
+        <Tab text="Raport sprzedaży biletów">
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label text="Generuj raport sprzedaży biletów"
+                       style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+
+                <HBox spacing="10" style="-fx-padding: 0 0 10 0;">
+                    <Label text="Zoo:" minWidth="80"/>
+                    <ChoiceBox fx:id="zooChoiceBox" prefWidth="300"/>
+                </HBox>
+
+                <HBox spacing="10" style="-fx-padding: 0 0 10 0;">
+                    <Label text="Miesiąc:" minWidth="80"/>
+                    <ChoiceBox fx:id="monthChoiceBox" prefWidth="100"/>
+
+                    <Label text="Rok:" minWidth="80"/>
+                    <ChoiceBox fx:id="yearChoiceBox" prefWidth="100"/>
+                </HBox>
+
+                <HBox spacing="10" style="-fx-padding: 0 0 20 0;">
+                    <Button text="Generuj raport"
+                            onAction="#generujRaport"
+                            style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+                    <Button text="Wyczyść"
+                            onAction="#wyczyscRaport"
+                            style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
+                </HBox>
+
+                <Separator/>
+
+                <Label text="Wynik raportu:" style="-fx-font-weight: bold; -fx-padding: 10 0 5 0;"/>
+                <TextArea fx:id="raportTextArea"
+                          prefHeight="400"
+                          prefWidth="800"
+                          editable="false"
+                          wrapText="true"
+                          style="-fx-font-family: 'Monospaced';"/>
+            </VBox>
+        </Tab>
+
+        <!-- Karta 2: Dodawanie zwierzęcia -->
+        <Tab text="Dodaj zwierzę">
+            <VBox spacing="15" style="-fx-padding: 20;">
+                <Label text="Dodaj nowe zwierzę"
+                       style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+
+                <GridPane hgap="10" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints prefWidth="100"/>
+                        <ColumnConstraints prefWidth="300"/>
+                    </columnConstraints>
+
+                    <rowConstraints>
+                        <RowConstraints prefHeight="30"/>
+                        <RowConstraints prefHeight="30"/>
+                        <RowConstraints prefHeight="30"/>
+                        <RowConstraints prefHeight="30"/>
+                    </rowConstraints>
+
+                    <Label text="Nazwa zwierzęcia:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="zwierzeNazwaField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Gatunek:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <TextField fx:id="zwierzeGatunekField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                    <Label text="Nazwa klatki:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <TextField fx:id="zwierzeKlatkaField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                    <Label text="ID opiekuna:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                    <TextField fx:id="zwierzeOpiekunField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                </GridPane>
+
+                <HBox spacing="10" style="-fx-padding: 15 0 0 0;">
+                    <Button text="Dodaj zwierzę"
+                            onAction="#dodajZwierze"
+                            style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
+                </HBox>
+
+                <Separator style="-fx-padding: 20 0 20 0;"/>
+
+                <Label fx:id="zwierzeResultLabel"
+                       style="-fx-font-weight: bold; -fx-text-fill: #2E7D32;"/>
+            </VBox>
+        </Tab>
+
+        <!-- Karta 3: Wyszukiwanie zwierzęcia -->
+        <Tab text="Znajdź zwierzę">
+            <VBox spacing="15" style="-fx-padding: 20;">
+                <Label text="Znajdź zwierzę po nazwie"
+                       style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+
+                <HBox spacing="10" style="-fx-padding: 0 0 15 0;">
+                    <Label text="Nazwa zwierzęcia:"/>
+                    <TextField fx:id="szukajZwierzeField" prefWidth="300"/>
+                    <Button text="Szukaj"
+                            onAction="#szukajZwierze"
+                            style="-fx-background-color: #9C27B0; -fx-text-fill: white;"/>
+                    <Button text="Wyczyść"
+                            onAction="#wyczyscSzukanie"
+                            style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
+                </HBox>
+
+                <Separator/>
+
+                <Label text="Wynik wyszukiwania:" style="-fx-font-weight: bold; -fx-padding: 10 0 5 0;"/>
+                <TextArea fx:id="szukajResultTextArea"
+                          prefHeight="300"
+                          prefWidth="800"
+                          editable="false"
+                          wrapText="true"/>
+            </VBox>
+        </Tab>
+
+    </TabPane>
+
+</AnchorPane>
