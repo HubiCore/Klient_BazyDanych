@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -69,13 +70,17 @@ public class UpdateController {
                 Wybierz_kolumne.getItems().clear();
                 Wybierz_kolumne.getItems().addAll(columnChoiceBox.getItems());
 
-                // Inicjalizacja również kolumny dla warunku
-                kolumnyChoiceBox.getItems().clear();
-                kolumnyChoiceBox.getItems().addAll(columnChoiceBox.getItems());
+                // Inicjalizacja również kolumny dla warunku - z zabezpieczeniem
+                if (kolumnyChoiceBox != null) {
+                    kolumnyChoiceBox.getItems().clear();
+                    kolumnyChoiceBox.getItems().addAll(columnChoiceBox.getItems());
+                }
 
                 if (!columnChoiceBox.getItems().isEmpty()) {
                     Wybierz_kolumne.setValue(columnChoiceBox.getItems().get(0));
-                    kolumnyChoiceBox.setValue(columnChoiceBox.getItems().get(0));
+                    if (kolumnyChoiceBox != null) {
+                        kolumnyChoiceBox.setValue(columnChoiceBox.getItems().get(0));
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -120,16 +125,22 @@ public class UpdateController {
                 }
 
                 zooController.update_table_where(selectedTable, selectedColumn, wartoscValue, warunek);
+                showSuccess("Pomyślnie zaktualizowano dane z warunkiem!");
             } catch (Exception e) {
-                System.out.println("Błąd przy aktualizacji z warunkiem: " + e.getMessage());
+                String errorMessage = "Błąd przy aktualizacji z warunkiem: " + e.getMessage();
+                System.out.println(errorMessage);
                 e.printStackTrace();
+                showError(errorMessage);
             }
         } else {
             try {
                 zooController.update_table(selectedTable, selectedColumn, wartoscValue);
+                showSuccess("Pomyślnie zaktualizowano dane!");
             } catch (Exception e) {
-                System.out.println("Błąd przy aktualizacji: " + e.getMessage());
+                String errorMessage = "Błąd przy aktualizacji: " + e.getMessage();
+                System.out.println(errorMessage);
                 e.printStackTrace();
+                showError(errorMessage);
             }
         }
     }
@@ -142,6 +153,23 @@ public class UpdateController {
             return false;
         }
     }
+
+    private void showSuccess(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Sukces");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Błąd");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     @FXML
     void switch_to_menu(ActionEvent event) throws IOException {
         Stage stage;

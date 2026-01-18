@@ -88,8 +88,6 @@ public class AlterController {
         operationChoiceBox.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> updateUIForOperation()
         );
-
-        // Aktualizuj listę kolumn po wyborze tabeli
         tableChoiceBox.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue != null) {
@@ -97,14 +95,8 @@ public class AlterController {
                     }
                 }
         );
-
-        // Obsługa przycisku potwierdzenia
         confirmButton.setOnAction(event -> handleConfirmButton());
-
-        // Obsługa przycisku wykonania
         executeButton.setOnAction(event -> handleExecuteButton());
-
-        // Aktualizuj kolumny dla tabeli obcej
         foreignTableChoiceBox.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue != null) {
@@ -118,7 +110,6 @@ public class AlterController {
         String operation = operationChoiceBox.getValue();
         if (operation == null) return;
 
-        // Resetuj wszystkie pola
         secondTextField.setVisible(true);
         secondTextField.setPromptText("");
         dataTypeChoiceBox.setVisible(false);
@@ -167,7 +158,6 @@ public class AlterController {
                 existingColumnChoiceBox.setVisible(true);
                 instructionText.setText("Wybierz tabelę i typ ograniczenia");
 
-                // Dodaj listener do aktualizacji UI dla FOREIGN KEY
                 constraintTypeChoiceBox.getSelectionModel().selectedItemProperty().addListener(
                         (obs, oldVal, newVal) -> {
                             if (newVal != null && newVal.contains("FOREIGN KEY")) {
@@ -212,7 +202,6 @@ public class AlterController {
     }
 
     private void loadForeignTables() {
-        // Wczytaj wszystkie tabele (takie same jak w głównym ChoiceBox)
         foreignTableChoiceBox.getItems().setAll(tableChoiceBox.getItems());
     }
 

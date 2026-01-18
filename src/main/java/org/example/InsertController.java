@@ -34,10 +34,7 @@ public class InsertController {
 
     public void initialize() {
         zooController = new ZooController();
-
-        // Załaduj nazwy tabel do ChoiceBox
         loadTableNames();
-
         generateFormsButton.setOnAction(event -> generateForms());
         insertButton.setOnAction(event -> insertData());
     }
@@ -51,26 +48,22 @@ public class InsertController {
             }
         } catch (SQLException e) {
             System.err.println("Błąd podczas ładowania tabel: " + e.getMessage());
-            showAlert("Błąd bazy danych", "Nie można załadować listy tabel: " + e.getMessage());
+            showError("Nie można załadować listy tabel: " + e.getMessage());
         }
     }
 
     private void generateForms() {
         String selectedTable = tableChoice.getValue();
         if (selectedTable == null || selectedTable.isEmpty()) {
-            showAlert("Błąd", "Wybierz tabelę");
+            showError("Wybierz tabelę");
             return;
         }
 
         try {
-            // Użyj istniejącej metody get_column_names z ZooController
             ChoiceBox<String> choiceBox = zooController.get_column_names(selectedTable);
             List<String> columnNames = new ArrayList<>(choiceBox.getItems());
 
-            // Wyczyść kontener
             columnsContainer.getChildren().clear();
-
-            // Dla każdej kolumny utwórz formularz
             for (String columnName : columnNames) {
                 HBox row = new HBox(10);
                 row.setPrefWidth(600);
@@ -80,7 +73,7 @@ public class InsertController {
 
                 TextField textField = new TextField();
                 textField.setPrefWidth(300);
-                textField.setUserData(columnName); // Przechowuj nazwę kolumny
+                textField.setUserData(columnName);
 
                 row.getChildren().addAll(label, textField);
                 columnsContainer.getChildren().add(row);
@@ -88,19 +81,18 @@ public class InsertController {
 
         } catch (SQLException e) {
             System.err.println("Błąd podczas generowania formularzy: " + e.getMessage());
-            showAlert("Błąd bazy danych", "Nie można pobrać struktury tabeli: " + e.getMessage());
+            showError("Nie można pobrać struktury tabeli: " + e.getMessage());
         }
     }
 
     private void insertData() {
         String selectedTable = tableChoice.getValue();
         if (selectedTable == null || selectedTable.isEmpty()) {
-            showAlert("Błąd", "Wybierz tabelę");
+            showError("Wybierz tabelę");
             return;
         }
 
         try {
-            // Pobierz wartości z formularzy
             List<Object> values = new ArrayList<>();
             List<String> columnNames = new ArrayList<>();
 
@@ -113,19 +105,13 @@ public class InsertController {
                             TextField textField = (TextField) child;
                             String columnName = (String) textField.getUserData();
                             String value = textField.getText();
-
                             columnNames.add(columnName);
-                            // Przetwarzaj puste wartości jako null
                             values.add(value.isEmpty() ? null : value);
                         }
                     }
                 }
             }
-
-            // Wykonaj INSERT używając ZooController
             zooController.insertIntoTable(selectedTable, columnNames, values);
-
-            // Wyczyść formularze
             for (javafx.scene.Node node : columnsContainer.getChildren()) {
                 if (node instanceof HBox) {
                     HBox row = (HBox) node;
@@ -137,23 +123,32 @@ public class InsertController {
                 }
             }
 
-            showAlert("Sukces", "Dane zostały pomyślnie wstawione do tabeli");
+            showSuccess("Dane zostały pomyślnie wstawione do tabeli");
 
         } catch (SQLException e) {
             System.err.println("Błąd podczas wstawiania danych: " + e.getMessage());
-            showAlert("Błąd bazy danych", "Nie można wstawić danych: " + e.getMessage());
+            showError("Nie można wstawić danych: " + e.getMessage());
         } catch (IllegalArgumentException e) {
-            showAlert("Błąd danych", e.getMessage());
+            showError(e.getMessage());
         }
     }
 
-    private void showAlert(String title, String message) {
+    private void showSuccess(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle("Sukces");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Błąd");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     @FXML
     void switch_to_menu(ActionEvent event) throws IOException {
         Stage stage;

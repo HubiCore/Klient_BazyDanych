@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -44,13 +45,8 @@ public class DeleteController {
     public void initialize() {
         try {
             zooController = new ZooController();
-
-            // Pobieranie nazw tabel z bazy danych
             refreshTables();
-
-            // Sprawdź czy porownanieChoiceBox nie jest null przed użyciem
             if (porownanieChoiceBox != null) {
-                // Inicjalizacja operatorów porównania
                 porownanieChoiceBox.getItems().addAll("większe od", "mniejsze od", "równe", "różne");
                 porownanieChoiceBox.setValue("równe");
             } else {
@@ -121,20 +117,20 @@ public class DeleteController {
     public void deleteTable() {
         String selectedTable = tableChoiceBox.getValue();
         if (czyWarunekCheckBox == null) {
-            System.out.println("Error: czyWarunekCheckBox is null!");
+            showError("Błąd: Pole wyboru warunku jest nieprawidłowe!");
             return;
         }
         boolean czyWarunek = czyWarunekCheckBox.isSelected();
 
         if (selectedTable == null || selectedTable.isEmpty()) {
-            System.out.println("Proszę wybrać tabelę!");
+            showError("Proszę wybrać tabelę!");
             return;
         }
 
         try {
             if (czyWarunek) {
                 if (kolumnyChoiceBox == null || porownanieChoiceBox == null || warunekWartoscTextField == null) {
-                    System.out.println("Error: Some condition controls are null!");
+                    showError("Błąd: Niektóre kontrolki warunku są nieprawidłowe!");
                     return;
                 }
 
@@ -145,7 +141,7 @@ public class DeleteController {
                 if (warunekKolumna == null || warunekKolumna.isEmpty() ||
                         operator == null || operator.isEmpty() ||
                         warunekWartosc == null || warunekWartosc.trim().isEmpty()) {
-                    System.out.println("Proszę wypełnić wszystkie pola warunku!");
+                    showError("Proszę wypełnić wszystkie pola warunku!");
                     return;
                 }
 
@@ -175,15 +171,15 @@ public class DeleteController {
                 }
 
                 zooController.delete_table_where(selectedTable, warunek);
-                System.out.println("Usunięto rekordy z tabeli " + selectedTable + " z warunkiem: " + warunek);
+                showSuccess("Usunięto rekordy z tabeli " + selectedTable + " z warunkiem: " + warunek);
 
             } else {
                 zooController.delete_table(selectedTable);
-                System.out.println("Usunięto wszystkie rekordy z tabeli " + selectedTable);
+                showSuccess("Usunięto wszystkie rekordy z tabeli " + selectedTable);
             }
 
         } catch (Exception e) {
-            System.out.println("Błąd podczas usuwania: " + e.getMessage());
+            showError("Błąd podczas usuwania: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -196,6 +192,23 @@ public class DeleteController {
             return false;
         }
     }
+
+    private void showSuccess(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Sukces");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Błąd");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     @FXML
     void switch_to_menu(ActionEvent event) throws IOException {
         Stage stage;

@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceBox;
 import javafx.stage.Stage;
 
@@ -22,22 +23,16 @@ public class DropController {
     public void initialize() {
         try {
             zooController = new ZooController();
-
-            // Pobierz dynamicznie nazwy tabel z bazy danych
             tableChoiceBox.setItems(zooController.get_table_names().getItems());
-
-            // Ustaw pierwszą tabelę jako domyślną, jeśli istnieje
             if (!tableChoiceBox.getItems().isEmpty()) {
                 tableChoiceBox.setValue(tableChoiceBox.getItems().get(0));
             }
-
             tableChoiceBox.setOnAction(event -> {
                 String selectedTable = tableChoiceBox.getValue();
-                // Możesz dodać dodatkową logikę po zmianie wyboru
             });
 
         } catch (Exception e) {
-            System.out.println("Błąd inicjalizacji Nie można zainicjalizować kontrolera:\n" + e.getMessage());
+            showError("Błąd inicjalizacji: Nie można zainicjalizować kontrolera:\n" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -46,18 +41,15 @@ public class DropController {
         String selectedTable = tableChoiceBox.getValue();
 
         if (selectedTable == null || selectedTable.trim().isEmpty()) {
-            System.out.println("Nie wybrano tabeli do usunięcia");
+            showError("Nie wybrano tabeli do usunięcia");
             return;
         }
 
         try {
             zooController.Drop_Table(selectedTable);
-
-            // Odśwież listę tabel po usunięciu
+            showSuccess("Tabela " + selectedTable + " została pomyślnie usunięta");
             tableChoiceBox.getItems().clear();
             tableChoiceBox.setItems(zooController.get_table_names().getItems());
-
-            // Ustaw nową domyślną tabelę
             if (!tableChoiceBox.getItems().isEmpty()) {
                 tableChoiceBox.setValue(tableChoiceBox.getItems().get(0));
             } else {
@@ -65,9 +57,23 @@ public class DropController {
             }
 
         } catch (Exception e) {
-            System.out.println("Błąd podczas usuwania tabeli: " + e.getMessage());
+            showError("Błąd podczas usuwania tabeli: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+    private void showSuccess(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Sukces");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Błąd");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
     @FXML
     void switch_to_menu(ActionEvent event) throws IOException {

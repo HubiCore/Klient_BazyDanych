@@ -269,8 +269,8 @@ public class ZooController {
         return stmt.executeQuery(query);
     }
 
-    public ResultSet Select_Table_where_order(String dane, String table,String where, String order) throws SQLException {
-        String query = "SELECT " + dane + " FROM " + table +" WHERE " + where + " ORDER BY  " + order;
+    public ResultSet Select_Table_where_order(String dane, String table, String where, String order) throws SQLException {
+        String query = "SELECT " + dane + " FROM " + table + " WHERE " + where + " ORDER BY " + order;
         Statement stmt = ensureConnection().createStatement();
         return stmt.executeQuery(query);
     }

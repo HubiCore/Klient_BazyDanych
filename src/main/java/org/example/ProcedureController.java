@@ -44,15 +44,12 @@ public class ProcedureController {
     }
 
     private void initializeChoiceBoxes() {
-        // Inicjalizacja miesięcy
         ObservableList<Integer> months = FXCollections.observableArrayList();
         for (int i = 1; i <= 12; i++) {
             months.add(i);
         }
         monthChoiceBox.setItems(months);
         monthChoiceBox.setValue(1);
-
-        // Inicjalizacja lat
         ObservableList<Integer> years = FXCollections.observableArrayList();
         int currentYear = java.time.Year.now().getValue();
         for (int i = currentYear - 5; i <= currentYear; i++) {
@@ -60,8 +57,6 @@ public class ProcedureController {
         }
         yearChoiceBox.setItems(years);
         yearChoiceBox.setValue(currentYear);
-
-        // Inicjalizacja zoo
         try {
             ResultSet rs = zooController.getZooList();
             ObservableList<String> zooList = FXCollections.observableArrayList();
@@ -73,7 +68,7 @@ public class ProcedureController {
                 zooChoiceBox.setValue(zooList.get(0));
             }
         } catch (SQLException e) {
-            showAlert("Błąd", "Nie udało się załadować listy zoo: " + e.getMessage());
+            showError("Nie udało się załadować listy zoo: " + e.getMessage());
         }
     }
 
@@ -82,20 +77,16 @@ public class ProcedureController {
         try {
             String selectedZoo = zooChoiceBox.getValue();
             if (selectedZoo == null) {
-                showAlert("Błąd", "Wybierz zoo!");
+                showError("Wybierz zoo!");
                 return;
             }
-
             int zooId = Integer.parseInt(selectedZoo.split(" - ")[0]);
             int month = monthChoiceBox.getValue();
             int year = yearChoiceBox.getValue();
 
             Map<String, Object> raport = zooController.generujRaportSprzedazyBiletow(zooId, month, year);
 
-            // Formatowanie raportu
             StringBuilder sb = new StringBuilder();
-            sb.append("RAPORT SPRZEDAŻY BILETÓW\n");
-            sb.append("=======================\n\n");
             sb.append("Zoo: ").append(raport.get("nazwa_zoo")).append("\n");
             sb.append("Okres: ").append(raport.get("okres")).append("\n\n");
             sb.append("Podsumowanie:\n");
@@ -118,9 +109,9 @@ public class ProcedureController {
             raportTextArea.setText(sb.toString());
 
         } catch (NumberFormatException e) {
-            showAlert("Błąd", "Nieprawidłowy format ID zoo!");
+            showError("Nieprawidłowy format ID zoo!");
         } catch (SQLException e) {
-            showAlert("Błąd bazy danych", e.getMessage());
+            showError("Błąd bazy danych: " + e.getMessage());
         }
     }
 
@@ -135,12 +126,12 @@ public class ProcedureController {
             try {
                 opiekunId = Integer.parseInt(zwierzeOpiekunField.getText());
             } catch (NumberFormatException e) {
-                showAlert("Błąd", "ID opiekuna musi być liczbą!");
+                showError("ID opiekuna musi być liczbą!");
                 return;
             }
 
             if (nazwa.isEmpty() || gatunek.isEmpty() || klatka.isEmpty()) {
-                showAlert("Błąd", "Wypełnij wszystkie pola!");
+                showError("Wypełnij wszystkie pola!");
                 return;
             }
 
@@ -151,16 +142,18 @@ public class ProcedureController {
 
             zwierzeResultLabel.setText(komunikat + (noweId != null ? " (ID: " + noweId + ")" : ""));
 
-            // Czyść pola po udanym dodaniu
             if (komunikat.contains("Dodano")) {
+                showSuccess(komunikat + (noweId != null ? " (ID: " + noweId + ")" : ""));
                 zwierzeNazwaField.clear();
                 zwierzeGatunekField.clear();
                 zwierzeKlatkaField.clear();
                 zwierzeOpiekunField.clear();
+            } else {
+                showError(komunikat);
             }
 
         } catch (SQLException e) {
-            showAlert("Błąd bazy danych", e.getMessage());
+            showError("Błąd bazy danych: " + e.getMessage());
         }
     }
 
@@ -170,7 +163,7 @@ public class ProcedureController {
             String nazwa = szukajZwierzeField.getText();
 
             if (nazwa.isEmpty()) {
-                showAlert("Błąd", "Wpisz nazwę zwierzęcia!");
+                showError("Wpisz nazwę zwierzęcia!");
                 return;
             }
 
@@ -178,7 +171,7 @@ public class ProcedureController {
             szukajResultTextArea.setText(wynik);
 
         } catch (SQLException e) {
-            showAlert("Błąd bazy danych", e.getMessage());
+            showError("Błąd bazy danych: " + e.getMessage());
         }
     }
 
@@ -193,13 +186,22 @@ public class ProcedureController {
         szukajResultTextArea.clear();
     }
 
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
+    private void showSuccess(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Sukces");
         alert.setHeaderText(null);
-        alert.setContentText(content);
+        alert.setContentText(message);
         alert.showAndWait();
     }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Błąd");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     @FXML
     void switch_to_menu(ActionEvent event) throws IOException {
         Stage stage;
