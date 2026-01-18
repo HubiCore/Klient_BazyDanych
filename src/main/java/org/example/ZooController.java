@@ -25,6 +25,195 @@ public class ZooController {
         }
         return connection;
     }
+    public List<org.example.ColumnInfo> getColumnDetails(String tableName) throws SQLException {
+        List<org.example.ColumnInfo> columnDetails = new ArrayList<>();
+
+        String query = "SELECT column_name, data_type, nullable FROM user_tab_columns WHERE table_name = ? ORDER BY column_id";
+
+        try (PreparedStatement pstmt = ensureConnection().prepareStatement(query)) {
+            pstmt.setString(1, tableName.toUpperCase());
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                String columnName = rs.getString("column_name");
+                String dataType = rs.getString("data_type");
+                String nullableStr = rs.getString("nullable");
+                boolean nullable = "Y".equalsIgnoreCase(nullableStr);
+
+                columnDetails.add(new org.example.ColumnInfo(columnName, dataType, nullable));
+            }
+        }
+
+        return columnDetails;
+    }
+
+    // Rozszerzona metoda wstawiania z walidacją typów
+    public void insertIntoTable(String tableName, List<String> columnNames, List<Object> values) throws SQLException {
+        if (columnNames.size() != values.size()) {
+            throw new IllegalArgumentException("Liczba kolumn i wartości musi być taka sama");
+        }
+
+        // Dodatkowa walidacja typów przed wykonaniem zapytania
+        validateInsertData(tableName, columnNames, values);
+
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("INSERT INTO ").append(tableName).append(" (");
+        for (int i = 0; i < columnNames.size(); i++) {
+            queryBuilder.append(columnNames.get(i));
+            if (i < columnNames.size() - 1) {
+                queryBuilder.append(", ");
+            }
+        }
+        queryBuilder.append(") VALUES (");
+        for (int i = 0; i < values.size(); i++) {
+            queryBuilder.append("?");
+            if (i < values.size() - 1) {
+                queryBuilder.append(", ");
+            }
+        }
+        queryBuilder.append(")");
+
+        String query = queryBuilder.toString();
+
+        try (PreparedStatement pstmt = ensureConnection().prepareStatement(query)) {
+            for (int i = 0; i < values.size(); i++) {
+                Object value = values.get(i);
+                String columnName = columnNames.get(i);
+
+                if (value == null) {
+                    // Sprawdź, czy kolumna pozwala na NULL
+                    if (!isColumnNullable(tableName, columnName)) {
+                        throw new SQLException("Kolumna '" + columnName + "' nie pozwala wartości NULL");
+                    }
+                    pstmt.setNull(i + 1, java.sql.Types.VARCHAR);
+                } else {
+                    String strValue = value.toString();
+                    String columnType = getColumnType(tableName, columnName);
+
+                    // Ustawienie wartości zgodnie z typem kolumny
+                    setPreparedStatementValue(pstmt, i + 1, strValue, columnType);
+                }
+            }
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Wstawienie danych nie powiodło się");
+            }
+        }
+    }
+
+    // Metoda walidacji danych przed wstawieniem
+    private void validateInsertData(String tableName, List<String> columnNames, List<Object> values) throws SQLException {
+        for (int i = 0; i < columnNames.size(); i++) {
+            String columnName = columnNames.get(i);
+            Object value = values.get(i);
+            String columnType = getColumnType(tableName, columnName);
+
+            if (value != null) {
+                String strValue = value.toString();
+
+                // Walidacja typu NUMBER
+                if (columnType.toUpperCase().contains("NUMBER")) {
+                    try {
+                        if (columnType.toUpperCase().contains(",")) {
+                            // Liczba zmiennoprzecinkowa
+                            Double.parseDouble(strValue);
+                        } else {
+                            // Liczba całkowita
+                            Long.parseLong(strValue);
+                        }
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("Nieprawidłowa wartość dla kolumny '" + columnName +
+                                "'. Oczekiwano liczby typu: " + columnType);
+                    }
+                }
+                // Walidacja typu DATE
+                else if (columnType.toUpperCase().contains("DATE")) {
+                    if (!isValidDateValue(strValue)) {
+                        throw new IllegalArgumentException("Nieprawidłowy format daty dla kolumny '" + columnName +
+                                "'. Użyj formatu YYYY-MM-DD");
+                    }
+                }
+            }
+        }
+    }
+
+    // Pobierz typ kolumny
+    private String getColumnType(String tableName, String columnName) throws SQLException {
+        String query = "SELECT data_type FROM user_tab_columns WHERE table_name = ? AND column_name = ?";
+
+        try (PreparedStatement pstmt = ensureConnection().prepareStatement(query)) {
+            pstmt.setString(1, tableName.toUpperCase());
+            pstmt.setString(2, columnName.toUpperCase());
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("data_type");
+            } else {
+                throw new SQLException("Nie znaleziono kolumny '" + columnName + "' w tabeli '" + tableName + "'");
+            }
+        }
+    }
+
+    // Sprawdź, czy kolumna pozwala na NULL
+    private boolean isColumnNullable(String tableName, String columnName) throws SQLException {
+        String query = "SELECT nullable FROM user_tab_columns WHERE table_name = ? AND column_name = ?";
+
+        try (PreparedStatement pstmt = ensureConnection().prepareStatement(query)) {
+            pstmt.setString(1, tableName.toUpperCase());
+            pstmt.setString(2, columnName.toUpperCase());
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return "Y".equalsIgnoreCase(rs.getString("nullable"));
+            }
+        }
+        return false; // Domyślnie zakładamy NOT NULL
+    }
+
+    // Ustawienie wartości w PreparedStatement zgodnie z typem
+    private void setPreparedStatementValue(PreparedStatement pstmt, int index, String value, String columnType)
+            throws SQLException {
+        if (value == null || value.isEmpty()) {
+            pstmt.setNull(index, java.sql.Types.VARCHAR);
+            return;
+        }
+
+        columnType = columnType.toUpperCase();
+
+        try {
+            if (columnType.contains("NUMBER") || columnType.contains("INT") ||
+                    columnType.contains("FLOAT") || columnType.contains("DECIMAL")) {
+
+                if (columnType.contains(",") || columnType.contains("FLOAT") || columnType.contains("DECIMAL")) {
+                    pstmt.setDouble(index, Double.parseDouble(value));
+                } else {
+                    pstmt.setLong(index, Long.parseLong(value));
+                }
+
+            } else if (columnType.contains("DATE") || columnType.contains("TIMESTAMP")) {
+                pstmt.setDate(index, java.sql.Date.valueOf(value));
+            } else {
+                pstmt.setString(index, value);
+            }
+        } catch (NumberFormatException e) {
+            throw new SQLException("Nie można przekonwertować wartości '" + value +
+                    "' na typ: " + columnType);
+        } catch (IllegalArgumentException e) {
+            throw new SQLException("Nieprawidłowy format danych dla wartości '" + value +
+                    "' i typu: " + columnType);
+        }
+    }
+
+    // Walidacja wartości daty
+    private boolean isValidDateValue(String value) {
+        try {
+            java.sql.Date.valueOf(value);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
     public void addColumn(String tableName, String columnName, String dataType) throws SQLException {
         String query = "ALTER TABLE " + tableName + " ADD (" + columnName + " " + dataType + ")";
         System.out.println("SQL: " + query); // Debug
@@ -143,52 +332,7 @@ public class ZooController {
         }
     }
 
-    public void insertIntoTable(String tableName, List<String> columnNames, List<Object> values) throws SQLException {
-        if (columnNames.size() != values.size()) {
-            throw new IllegalArgumentException("Liczba kolumn i wartości musi być taka sama");
-        }
-        StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append("INSERT INTO ").append(tableName).append(" (");
-        for (int i = 0; i < columnNames.size(); i++) {
-            queryBuilder.append(columnNames.get(i));
-            if (i < columnNames.size() - 1) {
-                queryBuilder.append(", ");
-            }
-        }
-        queryBuilder.append(") VALUES (");
-        for (int i = 0; i < values.size(); i++) {
-            queryBuilder.append("?");
-            if (i < values.size() - 1) {
-                queryBuilder.append(", ");
-            }
-        }
 
-        queryBuilder.append(")");
-
-        String query = queryBuilder.toString();
-
-        try (PreparedStatement pstmt = ensureConnection().prepareStatement(query)) {
-            for (int i = 0; i < values.size(); i++) {
-                Object value = values.get(i);
-                if (value == null) {
-                    pstmt.setNull(i + 1, java.sql.Types.VARCHAR);
-                } else {
-                    String strValue = value.toString();
-                    if (isNumeric(strValue)) {
-                        if (strValue.contains(".")) {
-                            pstmt.setDouble(i + 1, Double.parseDouble(strValue));
-                        } else {
-                            pstmt.setInt(i + 1, Integer.parseInt(strValue));
-                        }
-                    } else {
-                        pstmt.setString(i + 1, strValue);
-                    }
-                }
-            }
-
-            pstmt.executeUpdate();
-        }
-    }
     public void createTable(String tableName, List<CreateController.ColumnDefinition> columns) throws SQLException {
         if (tableName == null || tableName.trim().isEmpty()) {
             throw new IllegalArgumentException("Nazwa tabeli nie może być pusta");

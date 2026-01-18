@@ -31,9 +31,11 @@ public class InsertController {
     private Button insertButton;
 
     private ZooController zooController;
+    private List<ColumnInfo> columnInfos;  // Używamy org.example.ColumnInfo
 
     public void initialize() {
         zooController = new ZooController();
+        columnInfos = new ArrayList<>();
         loadTableNames();
         generateFormsButton.setOnAction(event -> generateForms());
         insertButton.setOnAction(event -> insertData());
@@ -60,20 +62,30 @@ public class InsertController {
         }
 
         try {
-            ChoiceBox<String> choiceBox = zooController.get_column_names(selectedTable);
-            List<String> columnNames = new ArrayList<>(choiceBox.getItems());
-
+            columnInfos.clear();
             columnsContainer.getChildren().clear();
-            for (String columnName : columnNames) {
+
+            List<ColumnInfo> columnDetails = zooController.getColumnDetails(selectedTable);
+            columnInfos.addAll(columnDetails);
+
+            for (ColumnInfo columnInfo : columnInfos) {
                 HBox row = new HBox(10);
                 row.setPrefWidth(600);
 
-                Label label = new Label(columnName + ":");
-                label.setPrefWidth(200);
+                Label label = new Label(columnInfo.getName() +
+                        " (" + columnInfo.getType() + ")" +
+                        (columnInfo.isNullable() ? "" : " *") + ":");
+                label.setPrefWidth(300);
 
                 TextField textField = new TextField();
                 textField.setPrefWidth(300);
-                textField.setUserData(columnName);
+                textField.setUserData(columnInfo); // Przechowujemy ColumnInfo
+
+                if (!columnInfo.isNullable()) {
+                    textField.setStyle("-fx-border-color: #ffcccc; -fx-border-width: 1px;");
+                    Tooltip tooltip = new Tooltip("Pole wymagane (NOT NULL)");
+                    Tooltip.install(textField, tooltip);
+                }
 
                 row.getChildren().addAll(label, textField);
                 columnsContainer.getChildren().add(row);
@@ -96,6 +108,7 @@ public class InsertController {
             List<Object> values = new ArrayList<>();
             List<String> columnNames = new ArrayList<>();
 
+            // Walidacja danych przed wstawieniem
             for (javafx.scene.Node node : columnsContainer.getChildren()) {
                 if (node instanceof HBox) {
                     HBox row = (HBox) node;
@@ -103,15 +116,27 @@ public class InsertController {
                     for (javafx.scene.Node child : row.getChildren()) {
                         if (child instanceof TextField) {
                             TextField textField = (TextField) child;
-                            String columnName = (String) textField.getUserData();
-                            String value = textField.getText();
-                            columnNames.add(columnName);
+                            ColumnInfo columnInfo = (ColumnInfo) textField.getUserData();
+                            String value = textField.getText().trim();
+
+                            // Walidacja
+                            String validationError = validateValue(value, columnInfo);
+                            if (validationError != null) {
+                                showError("Błąd walidacji dla kolumny " + columnInfo.getName() +
+                                        ":\n" + validationError);
+                                return;
+                            }
+
+                            columnNames.add(columnInfo.getName());
                             values.add(value.isEmpty() ? null : value);
                         }
                     }
                 }
             }
+
             zooController.insertIntoTable(selectedTable, columnNames, values);
+
+            // Czyszczenie formularza po udanym wstawieniu
             for (javafx.scene.Node node : columnsContainer.getChildren()) {
                 if (node instanceof HBox) {
                     HBox row = (HBox) node;
@@ -131,6 +156,103 @@ public class InsertController {
         } catch (IllegalArgumentException e) {
             showError(e.getMessage());
         }
+    }
+
+    // Metoda walidacji wartości
+    private String validateValue(String value, ColumnInfo columnInfo) {
+        String columnType = columnInfo.getType().toUpperCase();
+
+        // Sprawdzenie NULL
+        if ((value == null || value.isEmpty()) && !columnInfo.isNullable()) {
+            return "Pole nie może być puste (NOT NULL)";
+        }
+
+        if (value == null || value.isEmpty()) {
+            return null; // NULL jest dozwolony dla nullable kolumn
+        }
+
+        // Walidacja w zależności od typu
+        try {
+            if (columnType.contains("NUMBER") || columnType.contains("INT") ||
+                    columnType.contains("FLOAT") || columnType.contains("DECIMAL")) {
+
+                // Sprawdź, czy to liczba
+                if (!isValidNumber(value, columnType)) {
+                    return "Nieprawidłowy format liczby. Oczekiwano typu: " + columnType;
+                }
+
+                // Dodatkowa walidacja dla liczb całkowitych
+                if (columnType.contains("INT") || columnType.startsWith("NUMBER") && !columnType.contains(",")) {
+                    try {
+                        Integer.parseInt(value);
+                    } catch (NumberFormatException e) {
+                        return "Oczekiwano liczby całkowitej";
+                    }
+                }
+
+            } else if (columnType.contains("DATE") || columnType.contains("TIMESTAMP")) {
+                if (!isValidDate(value)) {
+                    return "Nieprawidłowy format daty. Użyj formatu YYYY-MM-DD";
+                }
+            } else if (columnType.contains("CHAR") || columnType.contains("VARCHAR")) {
+                // Sprawdź maksymalną długość (jeśli jest określona)
+                int maxLength = extractMaxLength(columnType);
+                if (maxLength > 0 && value.length() > maxLength) {
+                    return "Przekroczono maksymalną długość (" + maxLength + " znaków)";
+                }
+            }
+        } catch (Exception e) {
+            return "Nieprawidłowy format danych dla typu: " + columnType;
+        }
+
+        return null; // Brak błędów
+    }
+
+    private boolean isValidNumber(String value, String columnType) {
+        try {
+            // Usuń ewentualne białe znaki
+            value = value.trim();
+
+            // Sprawdź, czy to liczba
+            if (columnType.contains(",") || columnType.contains("FLOAT") || columnType.contains("DECIMAL")) {
+                // Liczba zmiennoprzecinkowa
+                Double.parseDouble(value);
+            } else {
+                // Liczba całkowita
+                Long.parseLong(value);
+            }
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private boolean isValidDate(String value) {
+        try {
+            // Prosta walidacja formatu daty YYYY-MM-DD
+            if (value.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                // Można dodać bardziej szczegółową walidację daty
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private int extractMaxLength(String columnType) {
+        try {
+            // Przykład: VARCHAR2(50) -> 50
+            if (columnType.contains("(") && columnType.contains(")")) {
+                int start = columnType.indexOf("(") + 1;
+                int end = columnType.indexOf(")");
+                String lengthStr = columnType.substring(start, end);
+                return Integer.parseInt(lengthStr);
+            }
+        } catch (Exception e) {
+            // Nie można wyodrębnić długości
+        }
+        return 0;
     }
 
     private void showSuccess(String message) {
