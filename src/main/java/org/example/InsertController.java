@@ -31,7 +31,7 @@ public class InsertController {
     private Button insertButton;
 
     private ZooController zooController;
-    private List<ColumnInfo> columnInfos;  // Używamy org.example.ColumnInfo
+    private List<ColumnInfo> columnInfos;
 
     public void initialize() {
         zooController = new ZooController();
@@ -108,7 +108,6 @@ public class InsertController {
             List<Object> values = new ArrayList<>();
             List<String> columnNames = new ArrayList<>();
 
-            // Walidacja danych przed wstawieniem
             for (javafx.scene.Node node : columnsContainer.getChildren()) {
                 if (node instanceof HBox) {
                     HBox row = (HBox) node;
@@ -119,7 +118,6 @@ public class InsertController {
                             ColumnInfo columnInfo = (ColumnInfo) textField.getUserData();
                             String value = textField.getText().trim();
 
-                            // Walidacja
                             String validationError = validateValue(value, columnInfo);
                             if (validationError != null) {
                                 showError("Błąd walidacji dla kolumny " + columnInfo.getName() +
@@ -133,10 +131,7 @@ public class InsertController {
                     }
                 }
             }
-
             zooController.insertIntoTable(selectedTable, columnNames, values);
-
-            // Czyszczenie formularza po udanym wstawieniu
             for (javafx.scene.Node node : columnsContainer.getChildren()) {
                 if (node instanceof HBox) {
                     HBox row = (HBox) node;
@@ -158,30 +153,25 @@ public class InsertController {
         }
     }
 
-    // Metoda walidacji wartości
     private String validateValue(String value, ColumnInfo columnInfo) {
         String columnType = columnInfo.getType().toUpperCase();
 
-        // Sprawdzenie NULL
         if ((value == null || value.isEmpty()) && !columnInfo.isNullable()) {
             return "Pole nie może być puste (NOT NULL)";
         }
 
         if (value == null || value.isEmpty()) {
-            return null; // NULL jest dozwolony dla nullable kolumn
+            return null;
         }
 
-        // Walidacja w zależności od typu
         try {
             if (columnType.contains("NUMBER") || columnType.contains("INT") ||
                     columnType.contains("FLOAT") || columnType.contains("DECIMAL")) {
 
-                // Sprawdź, czy to liczba
                 if (!isValidNumber(value, columnType)) {
                     return "Nieprawidłowy format liczby. Oczekiwano typu: " + columnType;
                 }
 
-                // Dodatkowa walidacja dla liczb całkowitych
                 if (columnType.contains("INT") || columnType.startsWith("NUMBER") && !columnType.contains(",")) {
                     try {
                         Integer.parseInt(value);
@@ -195,7 +185,6 @@ public class InsertController {
                     return "Nieprawidłowy format daty. Użyj formatu YYYY-MM-DD";
                 }
             } else if (columnType.contains("CHAR") || columnType.contains("VARCHAR")) {
-                // Sprawdź maksymalną długość (jeśli jest określona)
                 int maxLength = extractMaxLength(columnType);
                 if (maxLength > 0 && value.length() > maxLength) {
                     return "Przekroczono maksymalną długość (" + maxLength + " znaków)";
@@ -205,20 +194,16 @@ public class InsertController {
             return "Nieprawidłowy format danych dla typu: " + columnType;
         }
 
-        return null; // Brak błędów
+        return null;
     }
 
     private boolean isValidNumber(String value, String columnType) {
         try {
-            // Usuń ewentualne białe znaki
             value = value.trim();
 
-            // Sprawdź, czy to liczba
             if (columnType.contains(",") || columnType.contains("FLOAT") || columnType.contains("DECIMAL")) {
-                // Liczba zmiennoprzecinkowa
                 Double.parseDouble(value);
             } else {
-                // Liczba całkowita
                 Long.parseLong(value);
             }
             return true;
@@ -242,7 +227,6 @@ public class InsertController {
 
     private int extractMaxLength(String columnType) {
         try {
-            // Przykład: VARCHAR2(50) -> 50
             if (columnType.contains("(") && columnType.contains(")")) {
                 int start = columnType.indexOf("(") + 1;
                 int end = columnType.indexOf(")");
@@ -250,7 +234,7 @@ public class InsertController {
                 return Integer.parseInt(lengthStr);
             }
         } catch (Exception e) {
-            // Nie można wyodrębnić długości
+            System.out.println(e.getMessage());
         }
         return 0;
     }

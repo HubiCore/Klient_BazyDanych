@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class DatabaseConnection {
+    //peak dane do tablicy
     private static final String DB_URL = "jdbc:oracle:thin:@localhost:1521:XE";
     private static final String DB_USER = "system";
     private static final String DB_PASSWORD = "YourPassword123";

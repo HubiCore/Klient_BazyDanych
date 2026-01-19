@@ -151,25 +151,22 @@ public class ProcedureController {
             String klatka = zwierzeKlatkaField.getText().trim();
             String opiekunText = zwierzeOpiekunField.getText().trim();
 
-            // Walidacja pól
+            //BRUHhhhhhhhhhhhhhHHhhhHHHH
             if (nazwa.isEmpty()) {
                 showError("Nazwa zwierzęcia jest wymagana!");
                 zwierzeNazwaField.requestFocus();
                 return;
             }
-
             if (gatunek.isEmpty()) {
                 showError("Gatunek jest wymagany!");
                 zwierzeGatunekField.requestFocus();
                 return;
             }
-
             if (klatka.isEmpty()) {
                 showError("Nazwa klatki jest wymagana!");
                 zwierzeKlatkaField.requestFocus();
                 return;
             }
-
             if (opiekunText.isEmpty()) {
                 showError("ID opiekuna jest wymagane!");
                 zwierzeOpiekunField.requestFocus();
@@ -189,20 +186,16 @@ public class ProcedureController {
                 zwierzeOpiekunField.requestFocus();
                 return;
             }
-
-            // Walidacja długości tekstu
             if (nazwa.length() > 50) {
                 showError("Nazwa zwierzęcia nie może przekraczać 50 znaków!");
                 zwierzeNazwaField.requestFocus();
                 return;
             }
-
             if (gatunek.length() > 50) {
                 showError("Gatunek nie może przekraczać 50 znaków!");
                 zwierzeGatunekField.requestFocus();
                 return;
             }
-
             if (klatka.length() > 50) {
                 showError("Nazwa klatki nie może przekraczać 50 znaków!");
                 zwierzeKlatkaField.requestFocus();
@@ -218,7 +211,6 @@ public class ProcedureController {
 
             if (komunikat.contains("Dodano")) {
                 showSuccess(komunikat + (noweId != null ? " (ID: " + noweId + ")" : ""));
-                // Czyszczenie pól po sukcesie
                 zwierzeNazwaField.clear();
                 zwierzeGatunekField.clear();
                 zwierzeKlatkaField.clear();

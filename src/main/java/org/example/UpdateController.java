@@ -70,7 +70,6 @@ public class UpdateController {
                 Wybierz_kolumne.getItems().clear();
                 Wybierz_kolumne.getItems().addAll(columnChoiceBox.getItems());
 
-                // Inicjalizacja również kolumny dla warunku - z zabezpieczeniem
                 if (kolumnyChoiceBox != null) {
                     kolumnyChoiceBox.getItems().clear();
                     kolumnyChoiceBox.getItems().addAll(columnChoiceBox.getItems());

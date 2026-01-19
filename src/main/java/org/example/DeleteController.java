@@ -53,7 +53,6 @@ public class DeleteController {
                 System.out.println("Warning: porownanieChoiceBox is null");
             }
 
-            // Odśwież kolumny przy starcie (jeśli tabela została wybrana)
             if (tableChoiceBox.getValue() != null && !tableChoiceBox.getValue().isEmpty()) {
                 odswiezKolumny();
             }
@@ -67,15 +66,12 @@ public class DeleteController {
     @FXML
     public void refreshTables() {
         try {
-            // Pobieranie nazw tabel z bazy danych
             ChoiceBox<String> tablesFromDB = zooController.get_table_names();
             tableChoiceBox.getItems().clear();
 
-            // Kopiowanie nazw tabel z zwróconego ChoiceBox
             if (tablesFromDB != null && tablesFromDB.getItems() != null) {
                 tableChoiceBox.getItems().addAll(tablesFromDB.getItems());
 
-                // Ustawienie domyślnej wartości, jeśli dostępne są tabele
                 if (!tableChoiceBox.getItems().isEmpty()) {
                     tableChoiceBox.setValue(tableChoiceBox.getItems().get(0));
                 } else {

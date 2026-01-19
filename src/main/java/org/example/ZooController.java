@@ -46,14 +46,10 @@ public class ZooController {
 
         return columnDetails;
     }
-
-    // Rozszerzona metoda wstawiania z walidacją typów
     public void insertIntoTable(String tableName, List<String> columnNames, List<Object> values) throws SQLException {
         if (columnNames.size() != values.size()) {
             throw new IllegalArgumentException("Liczba kolumn i wartości musi być taka sama");
         }
-
-        // Dodatkowa walidacja typów przed wykonaniem zapytania
         validateInsertData(tableName, columnNames, values);
 
         StringBuilder queryBuilder = new StringBuilder();
@@ -81,7 +77,6 @@ public class ZooController {
                 String columnName = columnNames.get(i);
 
                 if (value == null) {
-                    // Sprawdź, czy kolumna pozwala na NULL
                     if (!isColumnNullable(tableName, columnName)) {
                         throw new SQLException("Kolumna '" + columnName + "' nie pozwala wartości NULL");
                     }
@@ -89,8 +84,6 @@ public class ZooController {
                 } else {
                     String strValue = value.toString();
                     String columnType = getColumnType(tableName, columnName);
-
-                    // Ustawienie wartości zgodnie z typem kolumny
                     setPreparedStatementValue(pstmt, i + 1, strValue, columnType);
                 }
             }
@@ -102,7 +95,6 @@ public class ZooController {
         }
     }
 
-    // Metoda walidacji danych przed wstawieniem
     private void validateInsertData(String tableName, List<String> columnNames, List<Object> values) throws SQLException {
         for (int i = 0; i < columnNames.size(); i++) {
             String columnName = columnNames.get(i);
@@ -111,15 +103,11 @@ public class ZooController {
 
             if (value != null) {
                 String strValue = value.toString();
-
-                // Walidacja typu NUMBER
                 if (columnType.toUpperCase().contains("NUMBER")) {
                     try {
                         if (columnType.toUpperCase().contains(",")) {
-                            // Liczba zmiennoprzecinkowa
                             Double.parseDouble(strValue);
                         } else {
-                            // Liczba całkowita
                             Long.parseLong(strValue);
                         }
                     } catch (NumberFormatException e) {
@@ -127,7 +115,6 @@ public class ZooController {
                                 "'. Oczekiwano liczby typu: " + columnType);
                     }
                 }
-                // Walidacja typu DATE
                 else if (columnType.toUpperCase().contains("DATE")) {
                     if (!isValidDateValue(strValue)) {
                         throw new IllegalArgumentException("Nieprawidłowy format daty dla kolumny '" + columnName +
@@ -138,7 +125,6 @@ public class ZooController {
         }
     }
 
-    // Pobierz typ kolumny
     private String getColumnType(String tableName, String columnName) throws SQLException {
         String query = "SELECT data_type FROM user_tab_columns WHERE table_name = ? AND column_name = ?";
 
@@ -155,7 +141,6 @@ public class ZooController {
         }
     }
 
-    // Sprawdź, czy kolumna pozwala na NULL
     private boolean isColumnNullable(String tableName, String columnName) throws SQLException {
         String query = "SELECT nullable FROM user_tab_columns WHERE table_name = ? AND column_name = ?";
 
@@ -168,10 +153,8 @@ public class ZooController {
                 return "Y".equalsIgnoreCase(rs.getString("nullable"));
             }
         }
-        return false; // Domyślnie zakładamy NOT NULL
+        return false;
     }
-
-    // Ustawienie wartości w PreparedStatement zgodnie z typem
     private void setPreparedStatementValue(PreparedStatement pstmt, int index, String value, String columnType)
             throws SQLException {
         if (value == null || value.isEmpty()) {
@@ -205,7 +188,6 @@ public class ZooController {
         }
     }
 
-    // Walidacja wartości daty
     private boolean isValidDateValue(String value) {
         try {
             java.sql.Date.valueOf(value);
@@ -222,7 +204,6 @@ public class ZooController {
         }
     }
     public void addColumnWithDefault(String tableName, String columnName, String dataType, String defaultValue) throws SQLException {
-        // Sprawdź, czy wartość domyślna wymaga apostrofów
         String formattedDefault = formatDefaultValue(defaultValue);
 
         String query = "ALTER TABLE " + tableName + " ADD (" + columnName + " " + dataType + " DEFAULT " + formattedDefault + ")";
@@ -508,25 +489,19 @@ public class ZooController {
         if (trimmed.startsWith("'") && trimmed.endsWith("'")) {
             return trimmed;
         }
-
-        // Sprawdź czy to liczba
         try {
             Double.parseDouble(trimmed);
-            return trimmed; // Liczby nie potrzebują apostrofów
+            return trimmed;
         } catch (NumberFormatException e) {
-            // Sprawdź czy to funkcja SQL
             if (trimmed.equalsIgnoreCase("SYSDATE") ||
                     trimmed.equalsIgnoreCase("CURRENT_TIMESTAMP") ||
                     trimmed.equalsIgnoreCase("NULL")) {
                 return trimmed.toUpperCase();
             }
-
-            // Dla wartości tekstowych - dodaj apostrofy
             return "'" + trimmed + "'";
         }
     }
     public Map<String, Object> generujRaportSprzedazyBiletow(int zooId, int miesiac, int rok) throws SQLException {
-        // Walidacja wejścia
         if (zooId <= 0) {
             throw new IllegalArgumentException("ID zoo musi być liczbą dodatnią");
         }
@@ -547,12 +522,10 @@ public class ZooController {
             stmt.setInt(1, zooId);
             stmt.setInt(2, miesiac);
             stmt.setInt(3, rok);
-            stmt.registerOutParameter(4, OracleTypes.CURSOR);  // Podsumowanie
-            stmt.registerOutParameter(5, OracleTypes.CURSOR);  // Szczegóły
-
+            stmt.registerOutParameter(4, OracleTypes.CURSOR);
+            stmt.registerOutParameter(5, OracleTypes.CURSOR);
             stmt.execute();
 
-            // Pobranie podsumowania
             try (ResultSet rsPodsumowanie = (ResultSet) stmt.getObject(4)) {
                 if (rsPodsumowanie.next()) {
                     result.put("nazwa_zoo", rsPodsumowanie.getString("nazwa_zoo"));
@@ -565,7 +538,6 @@ public class ZooController {
                 }
             }
 
-            // Pobranie szczegółów
             List<Map<String, Object>> szczegoly = new ArrayList<>();
             try (ResultSet rsSzczegoly = (ResultSet) stmt.getObject(5)) {
                 while (rsSzczegoly.next()) {
@@ -585,9 +557,7 @@ public class ZooController {
         return result;
     }
 
-    public Map<String, Object> dodajZwierze(String nazwaZwierzęcia, String nazwaGatunku,
-                                            String nazwaKlatki, int idOpiekuna) throws SQLException {
-        // Walidacja wejścia
+    public Map<String, Object> dodajZwierze(String nazwaZwierzęcia, String nazwaGatunku, String nazwaKlatki, int idOpiekuna) throws SQLException {
         if (nazwaZwierzęcia == null || nazwaZwierzęcia.trim().isEmpty()) {
             throw new IllegalArgumentException("Nazwa zwierzęcia nie może być pusta");
         }
@@ -604,7 +574,6 @@ public class ZooController {
             throw new IllegalArgumentException("ID opiekuna musi być liczbą dodatnią");
         }
 
-        // Walidacja długości tekstu
         if (nazwaZwierzęcia.length() > 50) {
             throw new IllegalArgumentException("Nazwa zwierzęcia nie może przekraczać 50 znaków");
         }
@@ -626,15 +595,14 @@ public class ZooController {
             stmt.setString(2, nazwaGatunku.trim());
             stmt.setString(3, nazwaKlatki.trim());
             stmt.setInt(4, idOpiekuna);
-            stmt.registerOutParameter(5, Types.NUMERIC);  // nowe_zwierze_id
-            stmt.registerOutParameter(6, Types.VARCHAR);  // komunikat
+            stmt.registerOutParameter(5, Types.NUMERIC);
+            stmt.registerOutParameter(6, Types.VARCHAR);
 
             stmt.execute();
 
             int newId = stmt.getInt(5);
             String komunikat = stmt.getString(6);
 
-            // Walidacja wyniku
             if (newId <= 0 && komunikat.contains("Dodano")) {
                 throw new SQLException("Nieprawidłowe ID zwierzecia zwrócone przez procedurę");
             }
@@ -688,56 +656,10 @@ public class ZooController {
         return stmt.executeQuery(query);
     }
 
-    public ResultSet getPracownicyList() throws SQLException {
-        String query = "SELECT Pracownik_ID, Imie || ' ' || Nazwisko AS Nazwa FROM Pracownicy ORDER BY Nazwisko";
-        Statement stmt = ensureConnection().createStatement();
-        return stmt.executeQuery(query);
-    }
-
-    public ResultSet getKlatkiList() throws SQLException {
-        String query = "SELECT Klatka_ID, Nazwa FROM Klatki ORDER BY Nazwa";
-        Statement stmt = ensureConnection().createStatement();
-        return stmt.executeQuery(query);
-    }
-
     public void closeConnection() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();
         }
     }
-    private boolean validateNumber(String value, String columnName) {
-        try {
-            if (value == null || value.trim().isEmpty()) {
-                return false;
-            }
-            Double.parseDouble(value);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
 
-    private boolean validateInteger(String value, String columnName) {
-        try {
-            if (value == null || value.trim().isEmpty()) {
-                return false;
-            }
-            Integer.parseInt(value);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-    private boolean validateDate(String value, String columnName) {
-        try {
-            if (value == null || value.trim().isEmpty()) {
-                return false;
-            }
-            java.sql.Date.valueOf(value);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
 }

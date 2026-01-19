@@ -84,7 +84,6 @@ public class AlterController {
         }
     }
     private void setupEventHandlers() {
-        // Aktualizuj UI po wyborze operacji
         operationChoiceBox.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> updateUIForOperation()
         );
