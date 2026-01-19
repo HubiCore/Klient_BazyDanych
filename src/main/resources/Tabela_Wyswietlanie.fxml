@@ -39,12 +39,6 @@
         </ChoiceBox>
         <CheckBox fx:id="czySortowanieCheckBox" layoutX="1155.0" layoutY="78.0" mnemonicParsing="false" text="Kolejność wyświetlania" />
         <ChoiceBox fx:id="kolejnoscChoiceBox" layoutX="1362.0" layoutY="74.0" prefWidth="150.0">
-            <items>
-                <FXCollections fx:factory="observableArrayList">
-                    <String fx:value="Rosnąco" />
-                    <String fx:value="Malejąco" />
-                </FXCollections>
-            </items>
         </ChoiceBox>
         <Button layoutX="1811.0" layoutY="43.0" mnemonicParsing="false" onAction="#switch_to_menu" text="Wyjdź" />
     </children>

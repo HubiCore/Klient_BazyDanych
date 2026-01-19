@@ -526,6 +526,19 @@ public class ZooController {
         }
     }
     public Map<String, Object> generujRaportSprzedazyBiletow(int zooId, int miesiac, int rok) throws SQLException {
+        // Walidacja wejścia
+        if (zooId <= 0) {
+            throw new IllegalArgumentException("ID zoo musi być liczbą dodatnią");
+        }
+
+        if (miesiac < 1 || miesiac > 12) {
+            throw new IllegalArgumentException("Miesiąc musi być w zakresie 1-12");
+        }
+
+        if (rok < 1900 || rok > 2100) {
+            throw new IllegalArgumentException("Rok musi być w rozsądnym zakresie");
+        }
+
         Map<String, Object> result = new HashMap<>();
 
         try (CallableStatement stmt = ensureConnection().prepareCall(
@@ -547,6 +560,8 @@ public class ZooController {
                     result.put("laczna_sprzedaz", rsPodsumowanie.getDouble("laczna_sprzedaz"));
                     result.put("liczba_biletow", rsPodsumowanie.getInt("liczba_biletow"));
                     result.put("srednia_cena", rsPodsumowanie.getDouble("srednia_cena"));
+                } else {
+                    throw new SQLException("Brak danych dla podanych parametrów");
                 }
             }
 
@@ -570,27 +585,62 @@ public class ZooController {
         return result;
     }
 
-    /**
-     * Wywołanie procedury DodajZwierze
-     */
     public Map<String, Object> dodajZwierze(String nazwaZwierzęcia, String nazwaGatunku,
                                             String nazwaKlatki, int idOpiekuna) throws SQLException {
+        // Walidacja wejścia
+        if (nazwaZwierzęcia == null || nazwaZwierzęcia.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nazwa zwierzęcia nie może być pusta");
+        }
+
+        if (nazwaGatunku == null || nazwaGatunku.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nazwa gatunku nie może być pusta");
+        }
+
+        if (nazwaKlatki == null || nazwaKlatki.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nazwa klatki nie może być pusta");
+        }
+
+        if (idOpiekuna <= 0) {
+            throw new IllegalArgumentException("ID opiekuna musi być liczbą dodatnią");
+        }
+
+        // Walidacja długości tekstu
+        if (nazwaZwierzęcia.length() > 50) {
+            throw new IllegalArgumentException("Nazwa zwierzęcia nie może przekraczać 50 znaków");
+        }
+
+        if (nazwaGatunku.length() > 50) {
+            throw new IllegalArgumentException("Nazwa gatunku nie może przekraczać 50 znaków");
+        }
+
+        if (nazwaKlatki.length() > 50) {
+            throw new IllegalArgumentException("Nazwa klatki nie może przekraczać 50 znaków");
+        }
+
         Map<String, Object> result = new HashMap<>();
 
         try (CallableStatement stmt = ensureConnection().prepareCall(
                 "{call DodajZwierze(?, ?, ?, ?, ?, ?)}")) {
 
-            stmt.setString(1, nazwaZwierzęcia);
-            stmt.setString(2, nazwaGatunku);
-            stmt.setString(3, nazwaKlatki);
+            stmt.setString(1, nazwaZwierzęcia.trim());
+            stmt.setString(2, nazwaGatunku.trim());
+            stmt.setString(3, nazwaKlatki.trim());
             stmt.setInt(4, idOpiekuna);
             stmt.registerOutParameter(5, Types.NUMERIC);  // nowe_zwierze_id
             stmt.registerOutParameter(6, Types.VARCHAR);  // komunikat
 
             stmt.execute();
 
-            result.put("nowe_zwierze_id", stmt.getInt(5));
-            result.put("komunikat", stmt.getString(6));
+            int newId = stmt.getInt(5);
+            String komunikat = stmt.getString(6);
+
+            // Walidacja wyniku
+            if (newId <= 0 && komunikat.contains("Dodano")) {
+                throw new SQLException("Nieprawidłowe ID zwierzecia zwrócone przez procedurę");
+            }
+
+            result.put("nowe_zwierze_id", newId);
+            result.put("komunikat", komunikat);
 
         } catch (SQLException e) {
             throw new SQLException("Błąd podczas dodawania zwierzęcia: " + e.getMessage());
@@ -599,21 +649,31 @@ public class ZooController {
         return result;
     }
 
-    /**
-     * Wywołanie funkcji ZnajdzZwierzePoNazwie
-     */
     public String znajdzZwierzePoNazwie(String nazwaZwierzęcia) throws SQLException {
+        // Walidacja wejścia
+        if (nazwaZwierzęcia == null || nazwaZwierzęcia.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nazwa zwierzęcia do wyszukania nie może być pusta");
+        }
+
+        if (nazwaZwierzęcia.trim().length() > 50) {
+            throw new IllegalArgumentException("Nazwa zwierzęcia do wyszukania nie może przekraczać 50 znaków");
+        }
+
         String wynik = null;
 
         try (CallableStatement stmt = ensureConnection().prepareCall(
                 "{ ? = call ZnajdzZwierzePoNazwie(?) }")) {
 
             stmt.registerOutParameter(1, Types.VARCHAR);
-            stmt.setString(2, nazwaZwierzęcia);
+            stmt.setString(2, nazwaZwierzęcia.trim());
 
             stmt.execute();
 
             wynik = stmt.getString(1);
+
+            if (wynik == null) {
+                wynik = "Nie znaleziono zwierzęcia o podanej nazwie";
+            }
 
         } catch (SQLException e) {
             throw new SQLException("Błąd podczas wyszukiwania zwierzęcia: " + e.getMessage());
@@ -643,6 +703,41 @@ public class ZooController {
     public void closeConnection() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();
+        }
+    }
+    private boolean validateNumber(String value, String columnName) {
+        try {
+            if (value == null || value.trim().isEmpty()) {
+                return false;
+            }
+            Double.parseDouble(value);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private boolean validateInteger(String value, String columnName) {
+        try {
+            if (value == null || value.trim().isEmpty()) {
+                return false;
+            }
+            Integer.parseInt(value);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private boolean validateDate(String value, String columnName) {
+        try {
+            if (value == null || value.trim().isEmpty()) {
+                return false;
+            }
+            java.sql.Date.valueOf(value);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 }

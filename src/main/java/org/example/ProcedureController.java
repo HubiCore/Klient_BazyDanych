@@ -80,9 +80,37 @@ public class ProcedureController {
                 showError("Wybierz zoo!");
                 return;
             }
-            int zooId = Integer.parseInt(selectedZoo.split(" - ")[0]);
-            int month = monthChoiceBox.getValue();
-            int year = yearChoiceBox.getValue();
+
+            int zooId;
+            try {
+                zooId = Integer.parseInt(selectedZoo.split(" - ")[0]);
+                if (zooId <= 0) {
+                    showError("Nieprawidłowe ID zoo!");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showError("Nieprawidłowy format ID zoo!");
+                return;
+            }
+
+            Integer month = monthChoiceBox.getValue();
+            Integer year = yearChoiceBox.getValue();
+
+            if (month == null || year == null) {
+                showError("Wybierz miesiąc i rok!");
+                return;
+            }
+
+            if (month < 1 || month > 12) {
+                showError("Miesiąc musi być w zakresie 1-12!");
+                return;
+            }
+
+            int currentYear = java.time.Year.now().getValue();
+            if (year < 1900 || year > currentYear) {
+                showError("Rok musi być w rozsądnym zakresie!");
+                return;
+            }
 
             Map<String, Object> raport = zooController.generujRaportSprzedazyBiletow(zooId, month, year);
 
@@ -108,8 +136,8 @@ public class ProcedureController {
 
             raportTextArea.setText(sb.toString());
 
-        } catch (NumberFormatException e) {
-            showError("Nieprawidłowy format ID zoo!");
+        } catch (IllegalArgumentException e) {
+            showError("Błąd walidacji: " + e.getMessage());
         } catch (SQLException e) {
             showError("Błąd bazy danych: " + e.getMessage());
         }
@@ -118,20 +146,66 @@ public class ProcedureController {
     @FXML
     private void dodajZwierze() {
         try {
-            String nazwa = zwierzeNazwaField.getText();
-            String gatunek = zwierzeGatunekField.getText();
-            String klatka = zwierzeKlatkaField.getText();
-            int opiekunId;
+            String nazwa = zwierzeNazwaField.getText().trim();
+            String gatunek = zwierzeGatunekField.getText().trim();
+            String klatka = zwierzeKlatkaField.getText().trim();
+            String opiekunText = zwierzeOpiekunField.getText().trim();
 
-            try {
-                opiekunId = Integer.parseInt(zwierzeOpiekunField.getText());
-            } catch (NumberFormatException e) {
-                showError("ID opiekuna musi być liczbą!");
+            // Walidacja pól
+            if (nazwa.isEmpty()) {
+                showError("Nazwa zwierzęcia jest wymagana!");
+                zwierzeNazwaField.requestFocus();
                 return;
             }
 
-            if (nazwa.isEmpty() || gatunek.isEmpty() || klatka.isEmpty()) {
-                showError("Wypełnij wszystkie pola!");
+            if (gatunek.isEmpty()) {
+                showError("Gatunek jest wymagany!");
+                zwierzeGatunekField.requestFocus();
+                return;
+            }
+
+            if (klatka.isEmpty()) {
+                showError("Nazwa klatki jest wymagana!");
+                zwierzeKlatkaField.requestFocus();
+                return;
+            }
+
+            if (opiekunText.isEmpty()) {
+                showError("ID opiekuna jest wymagane!");
+                zwierzeOpiekunField.requestFocus();
+                return;
+            }
+
+            int opiekunId;
+            try {
+                opiekunId = Integer.parseInt(opiekunText);
+                if (opiekunId <= 0) {
+                    showError("ID opiekuna musi być liczbą dodatnią!");
+                    zwierzeOpiekunField.requestFocus();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showError("ID opiekuna musi być liczbą całkowitą!");
+                zwierzeOpiekunField.requestFocus();
+                return;
+            }
+
+            // Walidacja długości tekstu
+            if (nazwa.length() > 50) {
+                showError("Nazwa zwierzęcia nie może przekraczać 50 znaków!");
+                zwierzeNazwaField.requestFocus();
+                return;
+            }
+
+            if (gatunek.length() > 50) {
+                showError("Gatunek nie może przekraczać 50 znaków!");
+                zwierzeGatunekField.requestFocus();
+                return;
+            }
+
+            if (klatka.length() > 50) {
+                showError("Nazwa klatki nie może przekraczać 50 znaków!");
+                zwierzeKlatkaField.requestFocus();
                 return;
             }
 
@@ -144,6 +218,7 @@ public class ProcedureController {
 
             if (komunikat.contains("Dodano")) {
                 showSuccess(komunikat + (noweId != null ? " (ID: " + noweId + ")" : ""));
+                // Czyszczenie pól po sukcesie
                 zwierzeNazwaField.clear();
                 zwierzeGatunekField.clear();
                 zwierzeKlatkaField.clear();
@@ -152,6 +227,8 @@ public class ProcedureController {
                 showError(komunikat);
             }
 
+        } catch (IllegalArgumentException e) {
+            showError("Błąd walidacji: " + e.getMessage());
         } catch (SQLException e) {
             showError("Błąd bazy danych: " + e.getMessage());
         }
@@ -160,16 +237,25 @@ public class ProcedureController {
     @FXML
     private void szukajZwierze() {
         try {
-            String nazwa = szukajZwierzeField.getText();
+            String nazwa = szukajZwierzeField.getText().trim();
 
             if (nazwa.isEmpty()) {
                 showError("Wpisz nazwę zwierzęcia!");
+                szukajZwierzeField.requestFocus();
+                return;
+            }
+
+            if (nazwa.length() > 50) {
+                showError("Nazwa zwierzęcia nie może przekraczać 50 znaków!");
+                szukajZwierzeField.requestFocus();
                 return;
             }
 
             String wynik = zooController.znajdzZwierzePoNazwie(nazwa);
             szukajResultTextArea.setText(wynik);
 
+        } catch (IllegalArgumentException e) {
+            showError("Błąd walidacji: " + e.getMessage());
         } catch (SQLException e) {
             showError("Błąd bazy danych: " + e.getMessage());
         }
@@ -214,4 +300,5 @@ public class ProcedureController {
         stage.setScene(scene);
         stage.show();
     }
+
 }
