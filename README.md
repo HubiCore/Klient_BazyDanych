@@ -8,3 +8,5 @@ Projekt jest kompatybilny z dowolną bazą danych. Do testów został załączon
 * ORACLE SQL
 * JAVAFX
 * MAVEN
+
+Ocena: 27/30
